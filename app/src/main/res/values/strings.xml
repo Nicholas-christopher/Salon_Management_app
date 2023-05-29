@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Salon Management app</string>
+    <string name="validate_name_error">Please input a valid name</string>
+    <string name="validate_email_error">Email format seems incorrect</string>
+    <string name="validate_phone_error">Phone number format seems incorrect</string>
+    <string name="validate_password_error">Password must contains the combination of capital and non-capital letters, a number, special character and a minimum length of 8</string>
+    <string name="validate_confirmPassword_error">Passwords must be equal</string>
 </resources>

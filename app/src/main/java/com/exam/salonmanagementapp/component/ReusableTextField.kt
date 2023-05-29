@@ -41,7 +41,7 @@ fun CustomTextField(
             onValueChange = { onValueChange(it) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp),
+                .padding(horizontal = 20.dp, vertical = 5.dp),
             label = { Text(label) },
             leadingIcon = {
                 Icon(
@@ -54,7 +54,7 @@ fun CustomTextField(
             trailingIcon = {
                 if (showError && !isPasswordField) Icon(imageVector = Icons.Filled.Error, contentDescription = "Show error Icon")
                 if (isPasswordField) {
-                    IconButton(onClick = { onVisibilityChange(!isPasswordField) }) {
+                    IconButton(onClick = { onVisibilityChange(!isPasswordVisible) }) {
                         Icon(
                             imageVector = if(isPasswordField) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Toggle password visibility"
