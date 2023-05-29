@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356993269975",
+    "project_id": "salon-management-app",
+    "storage_bucket": "salon-management-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356993269975:android:a54d9b2f788d446fcab092",
+        "android_client_info": {
+          "package_name": "com.exam.salonmanagementapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgNO4tUC4HUGtc1OCP-nAFER0h2pZFjdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
