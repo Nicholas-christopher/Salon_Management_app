@@ -1,6 +1,7 @@
 package com.exam.salonmanagementapp.screen
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -34,12 +35,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.component.CustomTextField
 import com.exam.salonmanagementapp.R
+import com.exam.salonmanagementapp.data.Customer
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
-fun RegistrationScreen() {
+fun RegistrationScreen(
+    navController: NavController
+) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
@@ -59,10 +67,8 @@ fun RegistrationScreen() {
     var isPasswordVisisble by rememberSaveable { mutableStateOf(true) }
     var isConfirmPasswordVisible by rememberSaveable { mutableStateOf(true) }
 
-
-
     fun validateData(name: String, email: String, phone: String, password: String, confirmPassword: String): Boolean {
-        var passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$".toRegex()
+        var passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$".toRegex()
 
         validateName = name.isNotBlank()
         validateEmail = Patterns.EMAIL_ADDRESS.matcher(email).matches()
@@ -76,6 +82,14 @@ fun RegistrationScreen() {
 
     fun register(name: String, email: String, phone: String, password: String, confirmPassword: String) {
         if (validateData(name, email, phone, password, confirmPassword)){
+            var database = FirebaseDatabase.getInstance().getReference("Customers")
+            val customer = Customer(email, name, phone, password)
+            database.child(email).setValue(customer).addOnSuccessListener {
+                Toast.makeText(context, "Registration completed", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+            }.addOnFailureListener {
+                Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
+            }
 
         }
     }
@@ -113,21 +127,6 @@ fun RegistrationScreen() {
                 color = Color.Blue
             )
             CustomTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = "Name",
-                showError = !validateName,
-                errorMessage = context.resources.getString(R.string.validate_name_error),
-                leadingIconImageVector = Icons.Default.PermIdentity,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                )
-            )
-            CustomTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = "Email",
@@ -136,6 +135,21 @@ fun RegistrationScreen() {
                 leadingIconImageVector = Icons.Default.AlternateEmail,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                )
+            )
+            CustomTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = "Name",
+                showError = !validateName,
+                errorMessage = context.resources.getString(R.string.validate_name_error),
+                leadingIconImageVector = Icons.Default.PermIdentity,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
@@ -206,6 +220,25 @@ fun RegistrationScreen() {
                     text = "Register"
                 )
             }
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                },
+                modifier = Modifier
+                    .padding(horizontal = 0.dp, vertical = 10.dp)
+                    .fillMaxWidth(0.9f),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray, contentColor = Color.White)
+            ) {
+                Text(
+                    text = "Cancel"
+                )
+            }
         }
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun RegistrationScreenPreview() {
+    RegistrationScreen(navController = rememberNavController())
 }

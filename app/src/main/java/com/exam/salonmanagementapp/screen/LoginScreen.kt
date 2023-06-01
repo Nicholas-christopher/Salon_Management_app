@@ -2,18 +2,20 @@ package com.exam.salonmanagementapp.screen
 
 import android.util.Patterns
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.PermIdentity
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,13 +33,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
+import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.component.CustomTextField
 
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    navController: NavController
+) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
@@ -59,7 +67,6 @@ fun LoginScreen() {
 
     fun login(email: String, password: String) {
         if (validateData(email, password)){
-
         }
     }
 
@@ -139,7 +146,18 @@ fun LoginScreen() {
                 text = "Don't have account? Register here",
                 modifier = Modifier
                     .padding(vertical = 10.dp)
+                    .clickable {
+                        navController.navigate(route = Screen.Registration.route)
+                    }
                 )
         }
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun LoginScreenPreview() {
+    LoginScreen(
+        navController = rememberNavController()
+    )
 }
