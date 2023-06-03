@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
-import com.google.firebase.database.DatabaseReference
+import com.exam.salonmanagementapp.screen.customer.CustomerLandingScreen
 
 @Composable
 fun SetupNavGraph(
@@ -25,6 +25,11 @@ fun SetupNavGraph(
             route = Screen.Registration.route
         ) {
             RegistrationScreen(navController = navController)
+        }
+        composable(
+            route = Screen.CustomerLanding.route
+        ) {
+            CustomerLandingScreen(navController = navController)
         }
     }
 }

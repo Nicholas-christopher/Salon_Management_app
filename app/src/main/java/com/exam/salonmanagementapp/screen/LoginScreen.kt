@@ -40,6 +40,11 @@ import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.component.CustomTextField
+import com.exam.salonmanagementapp.constant.DataConstant
+import com.exam.salonmanagementapp.data.Customer
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 
 
 @Composable
@@ -67,6 +72,21 @@ fun LoginScreen(
 
     fun login(email: String, password: String) {
         if (validateData(email, password)){
+            val db = Firebase.firestore
+            db.collection(DataConstant.TABLE_CUSTOMER)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener { documents ->
+                    System.out.println("documents.size() => " + documents.size())
+                    if (!documents.isEmpty) {
+                        val customer = documents.first().toObject<Customer>()
+                        System.out.println("User found")
+                    }
+                    else {
+                        System.out.println("User not found")
+                    }
+                }
+
         }
     }
 

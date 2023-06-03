@@ -39,10 +39,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.exam.salonmanagementapp.component.CustomTextField
 import com.exam.salonmanagementapp.R
+import com.exam.salonmanagementapp.component.CustomTextField
+import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Customer
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.util.*
 
 @Composable
 fun RegistrationScreen(
@@ -81,15 +84,17 @@ fun RegistrationScreen(
     }
 
     fun register(name: String, email: String, phone: String, password: String, confirmPassword: String) {
-        if (validateData(name, email, phone, password, confirmPassword)){
-            var database = FirebaseDatabase.getInstance().getReference("Customers")
+        if (validateData(name, email, phone, password, confirmPassword)) {
+            val db = Firebase.firestore
+            val customerId = UUID.randomUUID().toString()
             val customer = Customer(email, name, phone, password)
-            database.child(email).setValue(customer).addOnSuccessListener {
-                Toast.makeText(context, "Registration completed", Toast.LENGTH_SHORT).show()
-                navController.popBackStack()
-            }.addOnFailureListener {
-                Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
-            }
+            db.collection(DataConstant.TABLE_CUSTOMER)
+                .add(customer)
+                .addOnSuccessListener {
+                    navController.popBackStack()
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
+                }
 
         }
     }
