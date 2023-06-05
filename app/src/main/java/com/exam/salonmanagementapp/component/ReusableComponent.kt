@@ -62,6 +62,9 @@ fun CustomTextField(
                     tint = if(showError) MaterialTheme.colors.error else MaterialTheme.colors.onSurface
                 )
             },
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.Black
+            ),
             isError = showError,
             trailingIcon = {
                 if (showError && !isPasswordField) Icon(imageVector = Icons.Filled.Error, contentDescription = "Show error Icon")

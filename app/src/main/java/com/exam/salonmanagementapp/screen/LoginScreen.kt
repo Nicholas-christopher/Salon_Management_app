@@ -147,6 +147,7 @@ fun LoginScreen(
             Button(
                 onClick = {
                     login(email, password)
+                    navController.navigate(route = Screen.CustomerLanding.route)
                 },
                 modifier = Modifier
                     .padding(horizontal = 0.dp, vertical = 20.dp)
