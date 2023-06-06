@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
+import com.exam.salonmanagementapp.screen.customer.CustomerAppointmentScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerLandingScreen
 
 @Composable
@@ -30,6 +31,11 @@ fun SetupNavGraph(
             route = Screen.CustomerLanding.route
         ) {
             CustomerLandingScreen(navController = navController)
+        }
+        composable(
+            route = Screen.CustomerAppointment.route
+        ) {
+            CustomerAppointmentScreen(navController = navController)
         }
     }
 }

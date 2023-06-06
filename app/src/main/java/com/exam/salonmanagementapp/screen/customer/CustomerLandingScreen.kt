@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditCalendar
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
+import com.exam.salonmanagementapp.component.CustomListItem
 import com.exam.salonmanagementapp.component.CustomerBackground
 import com.exam.salonmanagementapp.component.TitleText
 
@@ -37,20 +39,44 @@ import com.exam.salonmanagementapp.component.TitleText
 fun CustomerLandingScreen(
     navController: NavController
 ) {
-    CustomerBackground(
+    CustomerBackground (
+        navController = navController
     ) {
+        CustomListItem(
+            leadingIconImageVector = Icons.Default.EditCalendar,
+            title1 = "12/23/2023",
+            title2 = "haircut",
+            title3 = "12:00 - 14:00",
+        )
+        CustomListItem(
+            leadingIconImageVector = Icons.Default.EditCalendar,
+            title1 = "12/23/2023",
+            title2 = "haircut",
+            title3 = "12:00 - 14:00",
+        )
+        CustomListItem(
+            leadingIconImageVector = Icons.Default.EditCalendar,
+            title1 = "12/23/2023",
+            title2 = "haircut",
+            title3 = "12:00 - 14:00",
+        )
+        CustomListItem(
+            leadingIconImageVector = Icons.Default.EditCalendar,
+            title1 = "12/23/2023",
+            title2 = "haircut",
+            title3 = "12:00 - 14:00",
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(), contentAlignment = Alignment.TopCenter
-        ){
-            Button(onClick = { /*TODO*/ }) {
-                
-            }
-        }
-    }
+        ) {
 
+        }
+
+    }
 }
+
 
 @Composable
 @Preview(showBackground = true)

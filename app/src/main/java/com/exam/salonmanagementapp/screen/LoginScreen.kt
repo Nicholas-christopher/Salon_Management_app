@@ -1,6 +1,8 @@
 package com.exam.salonmanagementapp.screen
 
+import android.content.Context
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -81,9 +83,21 @@ fun LoginScreen(
                     if (!documents.isEmpty) {
                         val customer = documents.first().toObject<Customer>()
                         System.out.println("User found")
+                        if (customer.password == password) {
+                            val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
+                            var editor = sharedPreference.edit()
+                            editor.putString("customerId", documents.first().id)
+                            editor.commit()
+
+                            navController.navigate(route = Screen.CustomerLanding.route)
+                        }
+                        else{
+                            Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
+                        }
+
                     }
                     else {
-                        System.out.println("User not found")
+                        Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -147,7 +161,6 @@ fun LoginScreen(
             Button(
                 onClick = {
                     login(email, password)
-                    navController.navigate(route = Screen.CustomerLanding.route)
                 },
                 modifier = Modifier
                     .padding(horizontal = 0.dp, vertical = 20.dp)
