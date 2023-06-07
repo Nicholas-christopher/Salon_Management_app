@@ -2,12 +2,16 @@ package com.exam.salonmanagementapp.component
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.net.Uri
+import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,10 +22,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -36,14 +42,18 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,10 +72,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.Screen
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.core.View
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 @Composable
 fun CustomTextField(
@@ -428,6 +442,7 @@ fun CustomDatePicker(
 @Composable
 fun CustomListItem(
     leadingIconImageVector: ImageVector,
+    leadingIconImageVector2: ImageVector,
     leadingIconDescription: String = "",
     title1: String = "",
     title2: String = "",
@@ -469,7 +484,7 @@ fun CustomListItem(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Delete,
+                    imageVector = leadingIconImageVector2,
                     contentDescription = "",
                     tint = Color.Black
                 )
@@ -479,3 +494,142 @@ fun CustomListItem(
 
     }
 }
+
+@Composable
+fun OwnerBackground(
+    navController: NavController,
+    content: @Composable ()-> Unit
+) {
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
+
+    /*
+    val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
+    val customerId = sharedPreference.getString("customerId", null)
+    if (customerId == null) {
+        navController.navigate(route = Screen.CustomerLanding.route)
+        return
+    }
+
+     */
+
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .paint(
+                painter = painterResource(R.drawable.salon_bg2),
+                contentScale = ContentScale.Crop
+            )
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
+                    .background(
+                        color = Color.Black.copy(alpha = 0.8f)
+                    )
+                    .fillMaxWidth(0.9f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TitleText(text = "Hello")
+                Image(
+                    painter = painterResource(R.drawable.profile),
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .size(35.dp)
+                        .clip(shape = RoundedCornerShape(20.dp)),
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 20.dp)
+                    .clip(shape = RoundedCornerShape(15.dp))
+                    .background(
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    .fillMaxWidth(0.9f)
+                    .padding(20.dp),
+            ) {
+                content()
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Black.copy(alpha = 0.8f)
+                ),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                IconButton(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    onClick = {
+                        navController.navigate(route = Screen.OwnerPayment.route)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Paid,
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    onClick = {
+                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Inventory,
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    onClick = {
+                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Groups,
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    onClick = {
+                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Logout,
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+

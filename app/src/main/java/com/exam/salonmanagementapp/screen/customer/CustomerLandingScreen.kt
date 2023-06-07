@@ -13,6 +13,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Logout
@@ -47,24 +48,28 @@ fun CustomerLandingScreen(
             title1 = "12/23/2023",
             title2 = "haircut",
             title3 = "12:00 - 14:00",
+            leadingIconImageVector2 = Icons.Default.Delete
         )
         CustomListItem(
             leadingIconImageVector = Icons.Default.EditCalendar,
             title1 = "12/23/2023",
             title2 = "haircut",
             title3 = "12:00 - 14:00",
+            leadingIconImageVector2 = Icons.Default.Delete
         )
         CustomListItem(
             leadingIconImageVector = Icons.Default.EditCalendar,
             title1 = "12/23/2023",
             title2 = "haircut",
             title3 = "12:00 - 14:00",
+            leadingIconImageVector2 = Icons.Default.Delete
         )
         CustomListItem(
             leadingIconImageVector = Icons.Default.EditCalendar,
             title1 = "12/23/2023",
             title2 = "haircut",
             title3 = "12:00 - 14:00",
+            leadingIconImageVector2 = Icons.Default.Delete
         )
         Box(
             modifier = Modifier
