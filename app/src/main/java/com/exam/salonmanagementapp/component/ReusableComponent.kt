@@ -2,16 +2,12 @@ package com.exam.salonmanagementapp.component
 
 import android.app.DatePickerDialog
 import android.content.Context
-import android.net.Uri
-import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,21 +34,24 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Paid
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,12 +70,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.Screen
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.core.View
+import com.exam.salonmanagementapp.data.Appointment
+import com.exam.salonmanagementapp.data.Customer
+import com.exam.salonmanagementapp.data.Product
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -273,7 +273,7 @@ fun CustomerBackground(
                     modifier = Modifier
                         .padding(10.dp),
                     onClick = {
-                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(route = Screen.Login.route)
                     }
                 ) {
                     Icon(
@@ -580,11 +580,11 @@ fun OwnerBackground(
                     modifier = Modifier
                         .padding(10.dp),
                     onClick = {
-                        navController.navigate(route = Screen.OwnerPayment.route)
+                        navController.navigate(route = Screen.OwnerAppointment.route)
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Paid,
+                        imageVector = Icons.Filled.CalendarMonth,
                         contentDescription = "",
                         tint = Color.White
                     )
@@ -593,7 +593,7 @@ fun OwnerBackground(
                     modifier = Modifier
                         .padding(10.dp),
                     onClick = {
-                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(route = Screen.OwnerProduct.route)
                     }
                 ) {
                     Icon(
@@ -606,7 +606,20 @@ fun OwnerBackground(
                     modifier = Modifier
                         .padding(10.dp),
                     onClick = {
-                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(route = Screen.OwnerLanding.route)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    onClick = {
+                        navController.navigate(route = Screen.OwnerCustomer.route)
                     }
                 ) {
                     Icon(
@@ -619,7 +632,7 @@ fun OwnerBackground(
                     modifier = Modifier
                         .padding(10.dp),
                     onClick = {
-                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(route = Screen.Login.route)
                     }
                 ) {
                     Icon(
@@ -633,3 +646,185 @@ fun OwnerBackground(
     }
 }
 
+
+@Composable
+fun CustomProductItem(
+    navController: NavController,
+    product: Product
+
+    ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Image(
+                painter = rememberImagePainter(
+                    ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(data = product.productImage)
+                        .build()
+                ),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(40.dp),
+                contentScale = ContentScale.Crop
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+
+                ) {
+                Text(text = product.productName)
+                Text(text = product.quantity.toString())
+            }
+
+            IconButton(
+                modifier = Modifier
+                    .padding(1.dp),
+                onClick = {
+                    navController.navigate(route = Screen.OwnerProductDetail.passId(product.id))
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Update,
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+
+            IconButton(
+                modifier = Modifier
+                    .padding(1.dp),
+                onClick = {
+
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+
+        }
+
+    }
+}
+@Composable
+fun CustomAppointmentList(
+    navController: NavController,
+    appointment: Appointment,
+
+){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        backgroundColor = Color.LightGray
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+
+                ) {
+                Text(text = appointment.appointmentTime)
+                Text(text = appointment.appointmentDate)
+                Text(text = appointment.description)
+            }
+
+            IconButton(
+                modifier = Modifier
+                    .padding(1.dp),
+                onClick = {
+                    navController.navigate(route = Screen.OwnerAppointmentDetail.passId(appointment.appointmentId))
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Update,
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+            IconButton(
+                modifier = Modifier
+                    .padding(1.dp),
+                onClick = {
+
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+
+        }
+
+    }
+}
+
+
+@Composable
+fun CustomCustomerDetails(
+    navController: NavController,
+    customer: Customer
+
+    ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(10.dp),
+                verticalArrangement = Arrangement.Center,
+
+                ) {
+                Text(text = customer.email)
+                Text(text = customer.name)
+                Text(text = customer.phone)
+            }
+
+            IconButton(
+                modifier = Modifier
+                    .padding(1.dp),
+                onClick = {
+                    navController.navigate(route = Screen.OwnerCustomerDetail.passId(customer.id))
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Update,
+                    contentDescription = "",
+                    tint = Color.Black
+                )
+            }
+        }
+    }
+}

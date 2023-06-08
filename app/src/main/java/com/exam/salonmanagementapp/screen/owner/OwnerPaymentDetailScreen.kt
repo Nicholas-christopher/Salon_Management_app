@@ -33,7 +33,8 @@ import com.exam.salonmanagementapp.component.OwnerBackground
 
 @Composable
 fun OwnerPaymentDetailScreen(
-    navController: NavController
+    navController: NavController,
+    paymentId : String
 ) {
     OwnerBackground (
         navController = navController
@@ -49,6 +50,7 @@ fun OwnerPaymentDetailScreen(
 @Preview(showBackground = true)
 fun OwnerPaymentDetailScreenPreview() {
     OwnerPaymentDetailScreen(
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        paymentId = "1"
     )
 }

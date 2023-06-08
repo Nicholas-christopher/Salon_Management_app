@@ -6,4 +6,5 @@
     <string name="validate_password_error">Password must contains the combination of capital and non-capital letters, a number, special character and a minimum length of 8</string>
     <string name="validate_confirmPassword_error">Passwords must be equal</string>
     <string name="firestore_document_customers">customers</string>
+    <string name="validate_product_quantityUsed">Quantity of the product must be bigger than the Used Product</string>
 </resources>

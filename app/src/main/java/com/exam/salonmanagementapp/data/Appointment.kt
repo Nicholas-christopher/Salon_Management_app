@@ -1,6 +1,7 @@
 package com.exam.salonmanagementapp.data
 
 data class Appointment(
+    val appointmentId: String = "",
     val customerId: String = "",
     val appointmentDate: String = "",
     val appointmentTime: String = "",

@@ -74,32 +74,40 @@ fun LoginScreen(
 
     fun login(email: String, password: String) {
         if (validateData(email, password)){
-            val db = Firebase.firestore
-            db.collection(DataConstant.TABLE_CUSTOMER)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener { documents ->
-                    System.out.println("documents.size() => " + documents.size())
-                    if (!documents.isEmpty) {
-                        val customer = documents.first().toObject<Customer>()
-                        System.out.println("User found")
-                        if (customer.password == password) {
-                            val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
-                            var editor = sharedPreference.edit()
-                            editor.putString("customerId", documents.first().id)
-                            editor.commit()
+            if (email.equals("admin@gmail.com") && password.equals("admin") )
+            {
+                navController.navigate(route = Screen.OwnerLanding.route)
+            }
+            else {
 
-                            navController.navigate(route = Screen.CustomerLanding.route)
+                val db = Firebase.firestore
+                db.collection(DataConstant.TABLE_CUSTOMER)
+                    .whereEqualTo("email", email)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        System.out.println("documents.size() => " + documents.size())
+                        if (!documents.isEmpty) {
+                            val customer = documents.first().toObject<Customer>()
+                            System.out.println("User found")
+                            if (customer.password == password) {
+                                val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
+                                var editor = sharedPreference.edit()
+                                editor.putString("customerId", documents.first().id)
+                                editor.commit()
+
+                                navController.navigate(route = Screen.CustomerLanding.route)
+                            }
+                            else{
+                                Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
+                            }
+
                         }
-                        else{
+                        else {
                             Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
                         }
+                    }
+            }
 
-                    }
-                    else {
-                        Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
-                    }
-                }
 
         }
     }

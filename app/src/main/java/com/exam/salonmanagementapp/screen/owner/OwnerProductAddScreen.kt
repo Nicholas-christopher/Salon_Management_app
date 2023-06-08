@@ -57,6 +57,7 @@ import com.exam.salonmanagementapp.data.Product
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 
 @Composable
 fun OwnerProductAddScreen(
@@ -92,11 +93,13 @@ fun OwnerProductAddScreen(
                 storage.putFile(it).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         storage.downloadUrl.addOnSuccessListener { uri ->
-                            val product = Product(productName, uri.toString(), quantity)
+                            val productId = UUID.randomUUID().toString()
+                            val product = Product(productId, productName, uri.toString(), quantity)
                             showProgressBar = false
 
                             db.collection(DataConstant.TABLE_PRODUCT)
-                                .add(product)
+                                .document(product.id)
+                                .set(product)
                                 .addOnSuccessListener {
                                     navController.popBackStack()
                                 }.addOnFailureListener {

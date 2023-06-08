@@ -87,9 +87,10 @@ fun RegistrationScreen(
         if (validateData(name, email, phone, password, confirmPassword)) {
             val db = Firebase.firestore
             val customerId = UUID.randomUUID().toString()
-            val customer = Customer(email, name, phone, password)
+            val customer = Customer(customerId, email, name, phone, password)
             db.collection(DataConstant.TABLE_CUSTOMER)
-                .add(customer)
+                .document(customerId)
+                .set(customer)
                 .addOnSuccessListener {
                     navController.popBackStack()
                 }.addOnFailureListener {

@@ -13,6 +13,8 @@ import com.exam.salonmanagementapp.screen.customer.CustomerHistoryDetailScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerHistoryScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerLandingScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerProfileScreen
+import com.exam.salonmanagementapp.screen.owner.OwnerAppointmentDetailScreen
+import com.exam.salonmanagementapp.screen.owner.OwnerAppointmentScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerCustomerDetailScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerCustomerPaymentScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerCustomerScreen
@@ -82,11 +84,11 @@ fun SetupNavGraph(
         }
         composable(
             route = Screen.OwnerPaymentDetail.route,
-            arguments = listOf(navArgument("id"){
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
                 type = NavType.StringType
             })
         ) {
-            OwnerPaymentDetailScreen(navController = navController)
+            OwnerPaymentDetailScreen(navController = navController, paymentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerProduct.route
@@ -95,11 +97,11 @@ fun SetupNavGraph(
         }
         composable(
             route = Screen.OwnerProductDetail.route,
-            arguments = listOf(navArgument("id"){
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
                 type = NavType.StringType
             })
         ) {
-            OwnerProductDetailScreen(navController = navController)
+            OwnerProductDetailScreen(navController = navController, productId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerProductAdd.route
@@ -121,16 +123,30 @@ fun SetupNavGraph(
         }
         composable(
             route = Screen.OwnerCustomerDetail.route,
-            arguments = listOf(navArgument("id"){
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
                 type = NavType.StringType
             })
         ) {
-            OwnerCustomerDetailScreen(navController = navController)
+            OwnerCustomerDetailScreen(navController = navController, customerId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerProfile.route
         ) {
             OwnerProfileScreen(navController = navController)
         }
+        composable(
+            route = Screen.OwnerAppointment.route
+        ) {
+            OwnerAppointmentScreen(navController = navController)
+        }
+        composable(
+            route = Screen.OwnerAppointmentDetail.route,
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
+                type = NavType.StringType
+            })
+        ) {
+            OwnerAppointmentDetailScreen(navController = navController, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
+        }
+
     }
 }

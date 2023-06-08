@@ -76,9 +76,11 @@ fun CustomerAppointmentScreen(
             val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
             val customerId = sharedPreference.getString("customerId", null)
             if (customerId != null) {
-                val appointment = Appointment(customerId, appointmentDate, time, service, description)
+                val appointmentId = UUID.randomUUID().toString()
+                val appointment = Appointment(appointmentId, customerId, appointmentDate, time, service, description)
                 db.collection(DataConstant.TABLE_APPOINTMENT)
-                    .add(appointment)
+                    .document(appointmentId)
+                    .set(appointment)
                     .addOnSuccessListener {
                         navController.popBackStack()
                     }.addOnFailureListener {
