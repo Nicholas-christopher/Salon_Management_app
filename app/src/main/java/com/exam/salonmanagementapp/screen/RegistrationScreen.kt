@@ -1,9 +1,12 @@
 package com.exam.salonmanagementapp.screen
 
-import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,64 +44,22 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.component.CustomTextField
-import com.exam.salonmanagementapp.constant.DataConstant
-import com.exam.salonmanagementapp.data.Customer
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import java.util.*
+import com.exam.salonmanagementapp.viewmodel.RegistrationViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
 
 @Composable
 fun RegistrationScreen(
-    navController: NavController
+    navController: NavController,
+    registrationVM: RegistrationViewModel
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    var name by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var phone by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
 
-    var validateName by rememberSaveable { mutableStateOf(true) }
-    var validateEmail by rememberSaveable { mutableStateOf(true) }
-    var validatePhone by rememberSaveable { mutableStateOf(true) }
-    var validatePassword by rememberSaveable { mutableStateOf(true) }
-    var validateConfirmPassword by rememberSaveable { mutableStateOf(true) }
-    var validatePasswordEqual by rememberSaveable { mutableStateOf(true) }
     var isPasswordVisisble by rememberSaveable { mutableStateOf(true) }
     var isConfirmPasswordVisible by rememberSaveable { mutableStateOf(true) }
-
-    fun validateData(name: String, email: String, phone: String, password: String, confirmPassword: String): Boolean {
-        var passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$".toRegex()
-
-        validateName = name.isNotBlank()
-        validateEmail = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        validatePhone = Patterns.PHONE.matcher(phone).matches()
-        validatePassword = passwordRegex.matches(password)
-        validateConfirmPassword = passwordRegex.matches(password)
-        validatePasswordEqual = password == confirmPassword
-
-        return validateName && validateEmail && validatePhone && validatePassword && validateConfirmPassword &&  validatePasswordEqual
-    }
-
-    fun register(name: String, email: String, phone: String, password: String, confirmPassword: String) {
-        if (validateData(name, email, phone, password, confirmPassword)) {
-            val db = Firebase.firestore
-            val customerId = UUID.randomUUID().toString()
-            val customer = Customer(customerId, email, name, phone, password)
-            db.collection(DataConstant.TABLE_CUSTOMER)
-                .document(customerId)
-                .set(customer)
-                .addOnSuccessListener {
-                    navController.popBackStack()
-                }.addOnFailureListener {
-                    Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
-                }
-
-        }
-    }
 
     val displayMetrics = context.resources.displayMetrics
     val dpHeight = displayMetrics.heightPixels / displayMetrics.density
@@ -114,7 +75,6 @@ fun RegistrationScreen(
             .verticalScroll(scrollState),
         contentAlignment = Alignment.Center
     ) {
-
         Column(
             modifier = Modifier
                 .padding(vertical = 20.dp)
@@ -122,7 +82,7 @@ fun RegistrationScreen(
                 .background(
                     color = Color.White.copy(alpha = 0.6f)
                 )
-                .fillMaxWidth(0.9f),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -133,10 +93,10 @@ fun RegistrationScreen(
                 color = Color.Blue
             )
             CustomTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = registrationVM.email,
+                onValueChange = { registrationVM.email = it },
                 label = "Email",
-                showError = !validateEmail,
+                showError = !registrationVM.validateEmail,
                 errorMessage = context.resources.getString(R.string.validate_email_error),
                 leadingIconImageVector = Icons.Default.AlternateEmail,
                 keyboardOptions = KeyboardOptions(
@@ -148,10 +108,10 @@ fun RegistrationScreen(
                 )
             )
             CustomTextField(
-                value = name,
-                onValueChange = { name = it },
+                value = registrationVM.name,
+                onValueChange = { registrationVM.name = it },
                 label = "Name",
-                showError = !validateName,
+                showError = !registrationVM.validateName,
                 errorMessage = context.resources.getString(R.string.validate_name_error),
                 leadingIconImageVector = Icons.Default.PermIdentity,
                 keyboardOptions = KeyboardOptions(
@@ -163,10 +123,10 @@ fun RegistrationScreen(
                 )
             )
             CustomTextField(
-                value = phone,
-                onValueChange = { phone = it },
+                value = registrationVM.phone,
+                onValueChange = { registrationVM.phone = it },
                 label = "Telp No",
-                showError = !validatePhone,
+                showError = !registrationVM.validatePhone,
                 errorMessage = context.resources.getString(R.string.validate_phone_error),
                 leadingIconImageVector = Icons.Default.Phone,
                 keyboardOptions = KeyboardOptions(
@@ -178,10 +138,10 @@ fun RegistrationScreen(
                 )
             )
             CustomTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = registrationVM.password,
+                onValueChange = { registrationVM.password = it },
                 label = "Password",
-                showError = !validatePassword,
+                showError = !registrationVM.validatePassword,
                 errorMessage = context.resources.getString(R.string.validate_password_error),
                 isPasswordField = true,
                 isPasswordVisible = isPasswordVisisble,
@@ -196,10 +156,10 @@ fun RegistrationScreen(
                 )
             )
             CustomTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = registrationVM.confirmPassword,
+                onValueChange = { registrationVM.confirmPassword = it },
                 label = "Confirm Password",
-                showError = !validateConfirmPassword,
+                showError = !registrationVM.validateConfirmPassword,
                 errorMessage = context.resources.getString(R.string.validate_confirmPassword_error),
                 isPasswordField = true,
                 isPasswordVisible = isConfirmPasswordVisible,
@@ -215,7 +175,13 @@ fun RegistrationScreen(
             )
             Button(
                 onClick = {
-                    register(name, email, phone, password, confirmPassword)
+                    registrationVM.register()
+                    if (registrationVM.success) {{
+                        navController.popBackStack()
+                    }
+                    else {
+                        Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .padding(horizontal = 0.dp, vertical = 20.dp)
@@ -246,5 +212,5 @@ fun RegistrationScreen(
 @Composable
 @Preview(showBackground = true)
 fun RegistrationScreenPreview() {
-    RegistrationScreen(navController = rememberNavController())
+    RegistrationScreen(navController = rememberNavController(), registrationVM = viewModel())
 }

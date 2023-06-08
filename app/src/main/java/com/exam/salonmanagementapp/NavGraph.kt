@@ -1,11 +1,14 @@
 package com.exam.salonmanagementapp
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.exam.salonmanagementapp.repository.CustomerRepository
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerAppointmentScreen
@@ -25,6 +28,7 @@ import com.exam.salonmanagementapp.screen.owner.OwnerProductAddScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProductDetailScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProductScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProfileScreen
+import com.exam.salonmanagementapp.viewmodel.RegistrationViewModel
 
 @Composable
 fun SetupNavGraph(
@@ -42,7 +46,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.Registration.route
         ) {
-            RegistrationScreen(navController = navController)
+            val registrationVM: RegistrationViewModel = RegistrationViewModel(customerRepository = CustomerRepository())
+            RegistrationScreen(navController = navController, registrationVM = registrationVM)
         }
         composable(
             route = Screen.CustomerLanding.route
