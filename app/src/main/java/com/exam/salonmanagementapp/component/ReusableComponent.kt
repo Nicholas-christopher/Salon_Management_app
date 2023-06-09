@@ -1,64 +1,28 @@
 package com.exam.salonmanagementapp.component
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
+import android.util.DisplayMetrics
 import android.widget.DatePicker
 import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.EditCalendar
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Paid
-import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -71,15 +35,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.data.Appointment
 import com.exam.salonmanagementapp.data.Customer
 import com.exam.salonmanagementapp.data.Product
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
+
 
 @Composable
 fun CustomTextField(
@@ -491,10 +454,10 @@ fun CustomListItem(
             }
 
         }
-
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun OwnerBackground(
     navController: NavController,
@@ -513,6 +476,16 @@ fun OwnerBackground(
     }
 
      */
+
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { OwnerTopBar(navController = navController) },
+        content = { OwnerContent(navController = navController, content = content, scrollState = scrollState ) },
+        bottomBar = { OwnerBottomBar(navController = navController) }
+    )
+
+    /*
 
     Column(
         modifier = Modifier
@@ -564,171 +537,279 @@ fun OwnerBackground(
                 content()
             }
         }
-        Column(
+        BottomNavigation(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     color = Color.Black.copy(alpha = 0.8f)
                 ),
+            backgroundColor = Color.Black.copy(alpha = 0.8f)
+        ) {
+            OwnerBottomNav(navController = navController)
+        }
+    }
+
+     */
+}
+
+@Composable
+fun OwnerTopBar(
+    navController: NavController,
+) {
+    TopAppBar(
+        title = {
+            Text(text = "Hi! Owner")
+        },
+        actions = {
+            // lock icon
+            IconButton(onClick = {
+                navController.navigate(route = Screen.Login.route)
+            }) {
+                Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Lock")
+            }
+        },
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    )
+}
+
+@Composable
+fun OwnerTopBar(
+    navController: NavController,
+    title: String,
+    navigationIcon: @Composable (() -> Unit)?,
+    actions: @Composable RowScope.() -> Unit,
+) {
+    TopAppBar(
+        title = {
+            Text(text = title)
+        },
+        navigationIcon = navigationIcon,
+        actions = actions,
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    )
+}
+
+@Composable
+fun OwnerContent(
+    navController: NavController,
+    scrollState: ScrollState,
+    content: @Composable ()-> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .paint(
+                painter = painterResource(R.drawable.salon_bg2),
+                contentScale = ContentScale.Crop
+            )
+            .background(
+                color = Color.White.copy(alpha = 0.9f)
+            )
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun OwnerBottomBar(
+    navController: NavController,
+) {
+    val selectedIndex = remember { mutableStateOf(0) }
+    BottomNavigation(
+        elevation = 10.dp,
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    ) {
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.CalendarMonth,"")
+            },
+            selected = (selectedIndex.value == 0),
+            onClick = {
+                selectedIndex.value = 0
+                navController.navigate(route = Screen.OwnerAppointment.route)
+            }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.Inventory,"")
+            },
+            selected = (selectedIndex.value == 1),
+            onClick = {
+                selectedIndex.value = 1
+                navController.navigate(route = Screen.OwnerProduct.route)
+            }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.Home,"")
+            },
+            selected = (selectedIndex.value == 2),
+            onClick = {
+                selectedIndex.value = 2
+                navController.navigate(route = Screen.OwnerLanding.route)
+            }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.Groups,"")
+            },
+            selected = (selectedIndex.value == 3),
+            onClick = {
+                selectedIndex.value = 3
+                navController.navigate(route = Screen.OwnerCustomer.route)
+            }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.Person, "")
+            },
+            selected = (selectedIndex.value == 4),
+            onClick = {
+                selectedIndex.value = 4
+            }
+        )
+    }
+}
+
+
+@Composable
+fun CustomProducts(
+    navController: NavController,
+    products: List<Product>
+){
+    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val dpWidth = (displayMetrics.widthPixels / displayMetrics.density) / 2 - 40
+
+    val itemPerRow = 2
+    val rows = (products.size / itemPerRow)
+    System.out.println("rows => $rows")
+    for (i in 0..rows) {
+        System.out.println("column => ${i}")
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.OwnerAppointment.route)
+                for (j in 0..itemPerRow-1) {
+                    System.out.println("row => ${j}")
+                    System.out.println("index => ${i*itemPerRow+j}")
+                    if (i*itemPerRow+j < products.size-1) {
+                        Column(
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(route = Screen.OwnerProductDetail.passId(products[i*itemPerRow+j].id))
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    ImageRequest
+                                        .Builder(LocalContext.current)
+                                        .data(data = products[i*itemPerRow+j].productImage)
+                                        .build()
+                                ),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(dpWidth.dp)
+                                    .border(
+                                        border = BorderStroke(1.dp, Color.DarkGray),
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(text = products[i*itemPerRow+j].productName)
+                        }
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.OwnerProduct.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Inventory,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.OwnerLanding.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Home,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.OwnerCustomer.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Groups,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.Login.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Logout,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun CustomProductItem(
+fun CustomAppointments(
     navController: NavController,
-    product: Product
-
-    ){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 5.dp),
-    ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Image(
-                painter = rememberImagePainter(
-                    ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(data = product.productImage)
-                        .build()
-                ),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(40.dp),
-                contentScale = ContentScale.Crop
-            )
+    appointments: List<Appointment>,
+){
+    if (appointments.isNotEmpty()) {
+        appointments.map {
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Center,
-
-                ) {
-                Text(text = product.productName)
-                Text(text = product.quantity.toString())
-            }
-
-            IconButton(
-                modifier = Modifier
-                    .padding(1.dp),
-                onClick = {
-                    navController.navigate(route = Screen.OwnerProductDetail.passId(product.id))
-                }
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Update,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
-            }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    backgroundColor = Color.LightGray
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        IconButton(
+                            onClick = {
+                                navController.navigate(route = Screen.OwnerAppointmentDetail.passId(it.appointmentId))
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Update,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        }
 
-            IconButton(
-                modifier = Modifier
-                    .padding(1.dp),
-                onClick = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
 
+                            ) {
+                            Text(text = it.appointmentDate + " " + it.appointmentTime)
+                            Text(text = it.service)
+                        }
+
+                        IconButton(
+                            onClick = {
+
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        }
+                    }
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
             }
-
         }
-
     }
 }
-@Composable
-fun CustomAppointmentList(
-    navController: NavController,
-    appointment: Appointment,
 
-){
+
+@Composable
+fun CustomCustomerDetails(
+    navController: NavController,
+    customer: Customer
+    ){
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .clip(shape = RoundedCornerShape(15.dp))
+            .fillMaxWidth(),
         backgroundColor = Color.LightGray
     ){
         Row(
@@ -744,83 +825,18 @@ fun CustomAppointmentList(
                 verticalArrangement = Arrangement.Center,
 
                 ) {
-                Text(text = appointment.appointmentTime)
-                Text(text = appointment.appointmentDate)
-                Text(text = appointment.description)
+                Text(text = "Name: " + customer.name)
+                Text(text = "Phone: " + customer.phone)
+                Text(text = "Email: " + customer.email)
             }
 
             IconButton(
-                modifier = Modifier
-                    .padding(1.dp),
-                onClick = {
-                    navController.navigate(route = Screen.OwnerAppointmentDetail.passId(appointment.appointmentId))
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Update,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
-            }
-            IconButton(
-                modifier = Modifier
-                    .padding(1.dp),
-                onClick = {
-
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
-            }
-
-        }
-
-    }
-}
-
-
-@Composable
-fun CustomCustomerDetails(
-    navController: NavController,
-    customer: Customer
-
-    ){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 5.dp),
-    ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.Center,
-
-                ) {
-                Text(text = customer.email)
-                Text(text = customer.name)
-                Text(text = customer.phone)
-            }
-
-            IconButton(
-                modifier = Modifier
-                    .padding(1.dp),
                 onClick = {
                     navController.navigate(route = Screen.OwnerCustomerDetail.passId(customer.id))
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Update,
+                    imageVector = Icons.Filled.Wysiwyg,
                     contentDescription = "",
                     tint = Color.Black
                 )

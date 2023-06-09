@@ -1,87 +1,88 @@
 package com.exam.salonmanagementapp.screen.owner
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.PanToolAlt
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PermIdentity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.exam.salonmanagementapp.component.CustomAppointmentList
+import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.component.CustomCustomerDetails
-import com.exam.salonmanagementapp.component.CustomListItem
+import com.exam.salonmanagementapp.component.CustomTextField
 import com.exam.salonmanagementapp.component.OwnerBackground
-import com.exam.salonmanagementapp.constant.DataConstant
-import com.exam.salonmanagementapp.data.Appointment
+import com.exam.salonmanagementapp.component.OwnerBottomBar
 import com.exam.salonmanagementapp.data.Customer
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.ktx.Firebase
+import com.exam.salonmanagementapp.viewmodel.OwnerCustomerViewModel
 
 @Composable
 fun OwnerCustomerScreen(
-    navController: NavController
+    navController: NavController,
+    ownerCustomerVM: OwnerCustomerViewModel
 ) {
-    OwnerBackground (
-        navController = navController
-    ) {
+    val context = LocalContext.current
+    var customerName by rememberSaveable { mutableStateOf("") }
 
-        var customer by remember { mutableStateOf(listOf<Customer>()) }
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar(title = {Text("TopAppBar")}) },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = { FloatingActionButton(onClick = {}){
+            Text("X")
+        } },
+        drawerContent = { Text(text = "drawerContent") },
+        content = { padding ->
+            OwnerBackground (
+                navController = navController
+            ) {
+                Text(text = context.resources.getString(R.string.owner_customer_list_title))
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-        ) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ){
+                CustomTextField(
+                    value = customerName,
+                    onValueChange = { customerName = it },
+                    label = "Customer Name",
+                    leadingIconImageVector = Icons.Default.PermIdentity,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    )
+                )
+
                 Button(
                     onClick = {
-                        navController.popBackStack()
+                        //saveProduct(productName, quantity, useImageUri, imageUri)
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
                 ) {
                     Text(
-                        text = "Back"
+                        text = "Add Product"
                     )
                 }
-            }
 
-            val db = Firebase.firestore
-            db.collection(DataConstant.TABLE_CUSTOMER)
-                .get()
-                .addOnSuccessListener { documents ->
-                    System.out.println("documents.size() => " + documents.size())
-                    if (!documents.isEmpty) {
-                        customer = documents.toObjects<Customer>()
-
-                    }
+                when (ownerCustomerVM.customersResult) {
+                    "" -> ownerCustomerVM.getCustomerList()
+                    "LOADING" -> CircularProgressIndicator()
+                    "SUCCESS" -> DisplayCustomer(navController, ownerCustomerVM.customers)
                 }
-
-            DisplayCustomer(navController, customer)
-        }
-    }
+            }
+        },
+        bottomBar = { OwnerBottomBar(navController = navController) }
+    )
 }
 
 @Composable
@@ -91,9 +92,12 @@ fun DisplayCustomer(
 ) {
     if (customer.isNotEmpty()) {
         for (customer in customer) {
-            CustomCustomerDetails(
-                navController = navController,
-                customer = customer)
+            Column(Modifier.padding(bottom = 10.dp)) {
+                CustomCustomerDetails(
+                    navController = navController,
+                    customer = customer)
+
+            }
         }
     }
 
@@ -104,6 +108,7 @@ fun DisplayCustomer(
 @Preview(showBackground = true)
 fun OwnerCustomerScreenPreview() {
     OwnerCustomerScreen(
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        ownerCustomerVM = viewModel()
     )
 }

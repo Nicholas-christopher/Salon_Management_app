@@ -18,14 +18,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,16 +44,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.exam.salonmanagementapp.R
-import com.exam.salonmanagementapp.component.CustomTextField
-import com.exam.salonmanagementapp.component.OwnerBackground
+import com.exam.salonmanagementapp.Screen
+import com.exam.salonmanagementapp.component.*
 import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Appointment
 import com.exam.salonmanagementapp.data.Product
+import com.exam.salonmanagementapp.viewmodel.OwnerProductAddViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -62,151 +65,94 @@ import java.util.UUID
 @Composable
 fun OwnerProductAddScreen(
     navController: NavController,
-
+    ownerProductAddVM: OwnerProductAddViewModel
 ) {
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-    val scrollState = rememberScrollState()
 
-    var productName by rememberSaveable { mutableStateOf("") }
-    var quantity by rememberSaveable { mutableStateOf(0) }
-    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var useImageUri by rememberSaveable { mutableStateOf(false) }
     val painter: Painter = painterResource(id = R.drawable.profile)
-    var showProgressBar by rememberSaveable {mutableStateOf(false)}
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        imageUri = it
+        ownerProductAddVM.imageUri = it
         useImageUri = true
     }
 
-    fun validateData(productName: String, quantity: Int, useImageUri: Boolean): Boolean {
-        return true
-    }
-
-    fun saveProduct(productName: String, quantity: Int, useImageUri: Boolean, imageUri: Uri?) {
-        if (validateData(productName, quantity, useImageUri)){
-            showProgressBar = true
-            var storage = FirebaseStorage.getInstance().reference.child(DataConstant.STORAGE_PRODUCT_IMAGE).child(System.currentTimeMillis().toString())
-            val db = Firebase.firestore
-
-            imageUri?.let {
-                storage.putFile(it).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        storage.downloadUrl.addOnSuccessListener { uri ->
-                            val productId = UUID.randomUUID().toString()
-                            val product = Product(productId, productName, uri.toString(), quantity)
-                            showProgressBar = false
-
-                            db.collection(DataConstant.TABLE_PRODUCT)
-                                .document(product.id)
-                                .set(product)
-                                .addOnSuccessListener {
-                                    navController.popBackStack()
-                                }.addOnFailureListener {
-                                    Toast.makeText(context, "Add product failed!", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                    } else {
-                        showProgressBar = false
-                        Toast.makeText(context, task.exception?.message, Toast.LENGTH_SHORT).show()
+    val scrollState = rememberScrollState()
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            OwnerTopBar(
+                navController = navController,
+                title = "Product(s)",
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(Icons.Filled.Close, "back")
+                    }
+                },
+                actions = {
+                    // lock icon
+                    IconButton(onClick = {
+                        ownerProductAddVM.addProduct()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Save, contentDescription = "save")
                     }
                 }
-            }
-
-        }
-    }
-
-    OwnerBackground (
-        navController = navController
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = if (useImageUri) rememberImagePainter(
-                        ImageRequest
-                            .Builder(LocalContext.current)
-                            .data(data = imageUri)
-                            .build()
-                    ) else painter,
-                    contentDescription = "",
+            )
+        },
+        content = { padding->
+            OwnerContent(navController = navController, scrollState = scrollState ) {
+                Column(
                     modifier = Modifier
-                        .size(100.dp)
-                        .clickable {
-                            launcher.launch("image/*")
-                        },
-                    contentScale = ContentScale.Crop
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = if (useImageUri) rememberAsyncImagePainter(
+                            ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(data = ownerProductAddVM.imageUri)
+                                .build()
+                        ) else painter,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                launcher.launch("image/*")
+                            },
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                CustomTextField(
+                    value = ownerProductAddVM.productName,
+                    onValueChange = { ownerProductAddVM.productName = it },
+                    label = "Product Name",
+                    leadingIconImageVector = Icons.Default.Description,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    )
                 )
-
-            }
-        }
-        CustomTextField(
-            value = productName,
-            onValueChange = { productName = it },
-            label = "Product Name",
-            leadingIconImageVector = Icons.Default.Description,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            )
-        )
-        CustomTextField(
-            value = quantity.toString(),
-            onValueChange = { quantity = it.toInt() },
-            label = "Product Quantity",
-            leadingIconImageVector = Icons.Default.Description,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            )
-        )
-
-        if(showProgressBar){
-            CircularProgressIndicator()
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-        ) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Button(
-                    onClick = {
-                        navController.popBackStack()
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
-                ) {
-                    Text(
-                        text = "Cancel"
+                CustomTextField(
+                    value = ownerProductAddVM.quantity,
+                    onValueChange = {  ownerProductAddVM.quantity = it },
+                    label = "Product Quantity",
+                    leadingIconImageVector = Icons.Default.Description,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     )
-                }
-                Button(
-                    onClick = {
-                        saveProduct(productName, quantity, useImageUri, imageUri)
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
-                ) {
-                    Text(
-                        text = "Add Product"
-                    )
-                }
+                )
             }
-        }
+        },
+        bottomBar = { OwnerBottomBar(navController = navController) }
+    )
+    when (ownerProductAddVM.addProductResult) {
+        "LOADING" -> CircularProgressIndicator()
+        "SUCCESS" -> navController.popBackStack()
     }
 }
 
@@ -215,6 +161,7 @@ fun OwnerProductAddScreen(
 @Preview(showBackground = true)
 fun OwnerProductAddScreenPreview() {
     OwnerProductAddScreen(
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        ownerProductAddVM = viewModel()
     )
 }

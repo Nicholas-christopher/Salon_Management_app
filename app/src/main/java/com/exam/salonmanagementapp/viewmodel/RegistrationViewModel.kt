@@ -1,6 +1,7 @@
 package com.exam.salonmanagementapp.viewmodel
 
 import android.util.Patterns
+import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,8 +41,7 @@ class RegistrationViewModel @Inject constructor(
 
     var validated by mutableStateOf(false)
         private set
-    var success by mutableStateOf(false)
-        private set
+    var registrationResult by mutableStateOf("")
 
     fun validateData() {
         val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$".toRegex()
@@ -58,6 +58,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun register() {
         viewModelScope.launch {
+            registrationResult = "LOADING"
             validateData()
             if (validated) {
                 val customer = Customer(UUID.randomUUID().toString(), email, name, phone, password)
@@ -67,8 +68,12 @@ class RegistrationViewModel @Inject constructor(
                     Result.Error(Exception("Network request failed"))
                 }
                 when (result) {
-                    is Result.Success<Boolean> -> success = true
-                    else -> success = false
+                    is Result.Success -> {
+                        registrationResult = "SUCCESS"
+                    }
+                    else -> {
+                        registrationResult = "FAILED"
+                    }
                 }
             }
         }

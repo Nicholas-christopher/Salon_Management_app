@@ -1,5 +1,6 @@
 package com.exam.salonmanagementapp.screen
 
+import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,10 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Password
@@ -46,7 +44,6 @@ import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.component.CustomTextField
 import com.exam.salonmanagementapp.viewmodel.RegistrationViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 
 @Composable
 fun RegistrationScreen(
@@ -58,8 +55,8 @@ fun RegistrationScreen(
     val scrollState = rememberScrollState()
 
 
-    var isPasswordVisisble by rememberSaveable { mutableStateOf(true) }
-    var isConfirmPasswordVisible by rememberSaveable { mutableStateOf(true) }
+    var isPasswordVisisble by rememberSaveable { mutableStateOf(false) }
+    var isConfirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     val displayMetrics = context.resources.displayMetrics
     val dpHeight = displayMetrics.heightPixels / displayMetrics.density
@@ -176,12 +173,6 @@ fun RegistrationScreen(
             Button(
                 onClick = {
                     registrationVM.register()
-                    if (registrationVM.success) {{
-                        navController.popBackStack()
-                    }
-                    else {
-                        Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
-                    }
                 },
                 modifier = Modifier
                     .padding(horizontal = 0.dp, vertical = 20.dp)
@@ -204,6 +195,17 @@ fun RegistrationScreen(
                 Text(
                     text = "Cancel"
                 )
+            }
+        }
+        when (registrationVM.registrationResult) {
+            "LOADING" -> {
+                CircularProgressIndicator()
+            }
+            "SUCCESS" -> {
+                navController.popBackStack()
+            }
+            "FAILED" -> {
+                Toast.makeText(context, "Registration failed!", Toast.LENGTH_SHORT).show()
             }
         }
     }

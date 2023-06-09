@@ -8,7 +8,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.exam.salonmanagementapp.repository.AppointmentRepository
 import com.exam.salonmanagementapp.repository.CustomerRepository
+import com.exam.salonmanagementapp.repository.ProductRepository
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerAppointmentScreen
@@ -28,7 +30,7 @@ import com.exam.salonmanagementapp.screen.owner.OwnerProductAddScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProductDetailScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProductScreen
 import com.exam.salonmanagementapp.screen.owner.OwnerProfileScreen
-import com.exam.salonmanagementapp.viewmodel.RegistrationViewModel
+import com.exam.salonmanagementapp.viewmodel.*
 
 @Composable
 fun SetupNavGraph(
@@ -80,7 +82,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.OwnerLanding.route
         ) {
-            OwnerLandingScreen(navController = navController)
+            val ownerLandingVM: OwnerLandingViewModel = OwnerLandingViewModel(appointmentRepository = AppointmentRepository())
+            OwnerLandingScreen(navController = navController, ownerLandingVM = ownerLandingVM)
         }
         composable(
             route = Screen.OwnerPayment.route
@@ -98,7 +101,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.OwnerProduct.route
         ) {
-            OwnerProductScreen(navController = navController)
+            val ownerProductVM: OwnerProductViewModel = OwnerProductViewModel(productRepository = ProductRepository())
+            OwnerProductScreen(navController = navController, ownerProductVM = ownerProductVM)
         }
         composable(
             route = Screen.OwnerProductDetail.route,
@@ -111,12 +115,14 @@ fun SetupNavGraph(
         composable(
             route = Screen.OwnerProductAdd.route
         ) {
-            OwnerProductAddScreen(navController = navController)
+            val ownerProductAddVM: OwnerProductAddViewModel = OwnerProductAddViewModel(productRepository = ProductRepository())
+            OwnerProductAddScreen(navController = navController, ownerProductAddVM = ownerProductAddVM)
         }
         composable(
             route = Screen.OwnerCustomer.route
         ) {
-            OwnerCustomerScreen(navController = navController)
+            val ownerCustomerVM: OwnerCustomerViewModel = OwnerCustomerViewModel(customerRepository = CustomerRepository())
+            OwnerCustomerScreen(navController = navController, ownerCustomerVM = ownerCustomerVM)
         }
         composable(
             route = Screen.OwnerCustomerPayment.route,

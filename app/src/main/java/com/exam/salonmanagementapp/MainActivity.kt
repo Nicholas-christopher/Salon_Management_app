@@ -21,14 +21,6 @@ class MainActivity : ComponentActivity() {
             SalonManagementAppTheme {
                 navController = rememberNavController()
                 SetupNavGraph(navController = navController)
-                /*
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-
-                }
-                */
             }
         }
     }
