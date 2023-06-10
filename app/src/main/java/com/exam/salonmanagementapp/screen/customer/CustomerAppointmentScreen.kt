@@ -43,6 +43,7 @@ import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Appointment
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.UUID
 
@@ -66,7 +67,6 @@ fun CustomerAppointmentScreen(
 
 
     fun validateData(appointmentDate: String, time: String, service: String): Boolean {
-
         return true
     }
 
@@ -77,7 +77,7 @@ fun CustomerAppointmentScreen(
             val customerId = sharedPreference.getString("customerId", null)
             if (customerId != null) {
                 val appointmentId = UUID.randomUUID().toString()
-                val appointment = Appointment(appointmentId, customerId, appointmentDate, time, service, description)
+                val appointment = Appointment(appointmentId, customerId, SimpleDateFormat("d/M/yyyy").parse(appointmentDate), time, service, description)
                 db.collection(DataConstant.TABLE_APPOINTMENT)
                     .document(appointmentId)
                     .set(appointment)

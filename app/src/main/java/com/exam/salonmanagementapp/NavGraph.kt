@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.exam.salonmanagementapp.repository.AppointmentRepository
 import com.exam.salonmanagementapp.repository.CustomerRepository
+import com.exam.salonmanagementapp.repository.PaymentRepository
 import com.exam.salonmanagementapp.repository.ProductRepository
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
@@ -18,18 +19,7 @@ import com.exam.salonmanagementapp.screen.customer.CustomerHistoryDetailScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerHistoryScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerLandingScreen
 import com.exam.salonmanagementapp.screen.customer.CustomerProfileScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerAppointmentDetailScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerAppointmentScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerCustomerDetailScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerCustomerPaymentScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerCustomerScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerLandingScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerPaymentDetailScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerPaymentScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerProductAddScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerProductDetailScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerProductScreen
-import com.exam.salonmanagementapp.screen.owner.OwnerProfileScreen
+import com.exam.salonmanagementapp.screen.owner.*
 import com.exam.salonmanagementapp.viewmodel.*
 
 @Composable
@@ -43,7 +33,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.Login.route
         ) {
-            LoginScreen(navController = navController)
+            val loginVM: LoginViewModel = LoginViewModel(customerRepository = CustomerRepository())
+            LoginScreen(navController = navController, loginVM = loginVM)
         }
         composable(
             route = Screen.Registration.route
@@ -54,7 +45,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.CustomerLanding.route
         ) {
-            CustomerLandingScreen(navController = navController)
+            val customerLandingVM: CustomerLandingViewModel = CustomerLandingViewModel(appointmentRepository = AppointmentRepository())
+            CustomerLandingScreen(navController = navController, customerLandingVM = customerLandingVM)
         }
         composable(
             route = Screen.CustomerAppointment.route
@@ -86,9 +78,14 @@ fun SetupNavGraph(
             OwnerLandingScreen(navController = navController, ownerLandingVM = ownerLandingVM)
         }
         composable(
-            route = Screen.OwnerPayment.route
+            route = Screen.OwnerPayment.route,
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID) {
+                type = NavType.StringType
+            })
         ) {
-            OwnerPaymentScreen(navController = navController)
+            val ownerAppointmentDetailVM: OwnerAppointmentDetailViewModel = OwnerAppointmentDetailViewModel(appointmentRepository = AppointmentRepository(), customerRepository = CustomerRepository())
+            val ownerPaymentVM: OwnerPaymentViewModel = OwnerPaymentViewModel(appointmentRepository = AppointmentRepository(), paymentRepository = PaymentRepository())
+            OwnerPaymentScreen(navController = navController, ownerAppointmentDetailVM= ownerAppointmentDetailVM, ownerPaymentVM = ownerPaymentVM, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerPaymentDetail.route,
@@ -125,12 +122,13 @@ fun SetupNavGraph(
             OwnerCustomerScreen(navController = navController, ownerCustomerVM = ownerCustomerVM)
         }
         composable(
-            route = Screen.OwnerCustomerPayment.route,
+            route = Screen.OwnerCustomerHistory.route,
             arguments = listOf(navArgument("id"){
                 type = NavType.StringType
             })
         ) {
-            OwnerCustomerPaymentScreen(navController = navController)
+            val ownerCustomerHistoryVM: OwnerCustomerHistoryViewModel = OwnerCustomerHistoryViewModel(appointmentRepository = AppointmentRepository())
+            OwnerCustomerHistoryScreen(navController = navController, customerId = it.arguments?.getString(ARGUMENT_KEY_ID).toString(), ownerCustomerHistoryVM = ownerCustomerHistoryVM)
         }
         composable(
             route = Screen.OwnerCustomerDetail.route,
@@ -138,7 +136,8 @@ fun SetupNavGraph(
                 type = NavType.StringType
             })
         ) {
-            OwnerCustomerDetailScreen(navController = navController, customerId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
+            val ownerCustomerDetailVM: OwnerCustomerDetailViewModel = OwnerCustomerDetailViewModel(customerRepository = CustomerRepository(), appointmentRepository = AppointmentRepository())
+            OwnerCustomerDetailScreen(navController = navController, ownerCustomerDetailVM = ownerCustomerDetailVM, customerId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerProfile.route
@@ -148,15 +147,17 @@ fun SetupNavGraph(
         composable(
             route = Screen.OwnerAppointment.route
         ) {
-            OwnerAppointmentScreen(navController = navController)
+            val ownerAppointmentVM: OwnerAppointmentViewModel = OwnerAppointmentViewModel(appointmentRepository = AppointmentRepository())
+            OwnerAppointmentScreen(navController = navController, ownerAppointmentVM = ownerAppointmentVM)
         }
         composable(
             route = Screen.OwnerAppointmentDetail.route,
-            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
+            arguments = listOf(navArgument(ARGUMENT_KEY_ID) {
                 type = NavType.StringType
             })
         ) {
-            OwnerAppointmentDetailScreen(navController = navController, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
+            val ownerAppointmentDetailVM: OwnerAppointmentDetailViewModel = OwnerAppointmentDetailViewModel(appointmentRepository = AppointmentRepository(), customerRepository = CustomerRepository())
+            OwnerAppointmentDetailScreen(navController = navController, ownerAppointmentDetailVM = ownerAppointmentDetailVM, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
 
     }

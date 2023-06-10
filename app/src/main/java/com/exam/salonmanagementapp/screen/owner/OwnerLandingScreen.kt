@@ -44,20 +44,23 @@ fun OwnerLandingScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = { OwnerTopBar(navController = navController) },
-        content = { padding->
+        content = { padding ->
             OwnerContent(navController = navController, scrollState = scrollState ) {
-                Text(text = "Today Appointment(s)")
-
+                Column() {
+                    Text(text = "Upcoming Appointment(s)")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    when (ownerLandingVM.appointmentsResult) {
+                        "" -> ownerLandingVM.getTodayAppointments()
+                        "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments)
+                    }
+                }
                 when (ownerLandingVM.appointmentsResult) {
-                    "" -> ownerLandingVM.getTodayAppointments()
                     "LOADING" -> CircularProgressIndicator()
-                    "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments)
                 }
             }
         },
         bottomBar = { OwnerBottomBar(navController = navController) }
     )
-
 }
 
 

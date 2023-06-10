@@ -143,17 +143,17 @@ fun OwnerProductAddScreen(
                     leadingIconImageVector = Icons.Default.Description,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
+                        imeAction = ImeAction.Done
                     )
                 )
+            }
+            when (ownerProductAddVM.addProductResult) {
+                "LOADING" -> CircularProgressIndicator()
+                "SUCCESS" -> navController.popBackStack()
             }
         },
         bottomBar = { OwnerBottomBar(navController = navController) }
     )
-    when (ownerProductAddVM.addProductResult) {
-        "LOADING" -> CircularProgressIndicator()
-        "SUCCESS" -> navController.popBackStack()
-    }
 }
 
 

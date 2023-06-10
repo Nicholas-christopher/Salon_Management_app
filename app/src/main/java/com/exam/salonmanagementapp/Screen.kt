@@ -15,7 +15,11 @@ sealed class Screen(val route: String) {
     }
     object CustomerProfile: Screen(route = "customer_profile_screen")
     object OwnerLanding: Screen(route = "owner_landing_screen")
-    object OwnerPayment: Screen(route = "owner_payment_screen")
+    object OwnerPayment: Screen(route = "owner_payment_screen/{$ARGUMENT_KEY_ID}") {
+        fun passId(id: String): String{
+            return "owner_payment_screen/$id"
+        }
+    }
     object OwnerPaymentDetail: Screen(route = "owner_payment_detail_screen/{$ARGUMENT_KEY_ID}") {
         fun passId(id: String): String{
             return "owner_payment_detail_screen/$id"
@@ -34,9 +38,9 @@ sealed class Screen(val route: String) {
             return "owner_customer_detail_screen/$id"
         }
     }
-    object OwnerCustomerPayment: Screen(route = "owner_customer_payment_screen/{$ARGUMENT_KEY_ID}") {
+    object OwnerCustomerHistory: Screen(route = "owner_customer_history_screen/{$ARGUMENT_KEY_ID}") {
         fun passId(id: String): String{
-            return "owner_customer_payment_screen/$id"
+            return "owner_customer_history_screen/$id"
         }
     }
     object OwnerProfile: Screen(route = "owner_profile_screen")

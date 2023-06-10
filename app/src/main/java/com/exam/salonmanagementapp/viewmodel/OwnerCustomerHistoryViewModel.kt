@@ -5,34 +5,35 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.exam.salonmanagementapp.data.Customer
+import com.exam.salonmanagementapp.data.Appointment
+import com.exam.salonmanagementapp.repository.AppointmentRepository
 import com.exam.salonmanagementapp.repository.CustomerRepository
 import com.exam.salonmanagementapp.repository.Result
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class OwnerCustomerViewModel @Inject constructor(
-    private val customerRepository : CustomerRepository
+class OwnerCustomerHistoryViewModel @Inject constructor(
+    private val appointmentRepository: AppointmentRepository
 ) : ViewModel() {
 
-    var customers by mutableStateOf<List<Customer>>(listOf<Customer>())
-    var customersResult by mutableStateOf("")
+    var appointments by mutableStateOf(listOf<Appointment>())
+    var appointmentsResult by mutableStateOf("")
 
-    fun getCustomers() {
+    fun getCustomerAppointmentHistory(customerId: String) {
         viewModelScope.launch {
-            customersResult = "LOADING"
+            appointmentsResult = "LOADING"
             val result = try {
-                customerRepository.getCustomers()
+                appointmentRepository.getCustomerAppointmentHistory(customerId)
             } catch(e: Exception) {
                 Result.Error(Exception("Network request failed"))
             }
             when (result) {
                 is Result.Success -> {
-                    customersResult = "SUCCESS"
-                    customers = result.data
+                    appointmentsResult = "SUCCESS"
+                    appointments = result.data
                 }
                 else -> {
-                    customersResult = "FAILED"
+                    appointmentsResult = "FAILED"
                 }
             }
         }

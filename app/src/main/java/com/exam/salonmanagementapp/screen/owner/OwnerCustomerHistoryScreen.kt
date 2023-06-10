@@ -1,37 +1,23 @@
 package com.exam.salonmanagementapp.screen.owner
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.PermIdentity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.component.*
-import com.exam.salonmanagementapp.data.Customer
-import com.exam.salonmanagementapp.viewmodel.OwnerCustomerViewModel
+import com.exam.salonmanagementapp.viewmodel.OwnerCustomerHistoryViewModel
 
 @Composable
-fun OwnerCustomerScreen(
+fun OwnerCustomerHistoryScreen(
     navController: NavController,
-    ownerCustomerVM: OwnerCustomerViewModel
+    ownerCustomerHistoryVM : OwnerCustomerHistoryViewModel,
+    customerId: String
 ) {
     val scrollState = rememberScrollState()
     val scaffoldState = rememberScaffoldState()
@@ -40,7 +26,7 @@ fun OwnerCustomerScreen(
         topBar = {
             OwnerTopBar(
                 navController = navController,
-                title = "Customer(s)",
+                title = "Customer History",
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -54,12 +40,12 @@ fun OwnerCustomerScreen(
         content = { padding ->
             OwnerContent(navController = navController, scrollState = scrollState ) {
                 Column() {
-                    when (ownerCustomerVM.customersResult) {
-                        "" -> ownerCustomerVM.getCustomers()
-                        "SUCCESS" -> CustomCustomerDetails(navController, ownerCustomerVM.customers)
+                    when (ownerCustomerHistoryVM.appointmentsResult) {
+                        "" -> ownerCustomerHistoryVM.getCustomerAppointmentHistory(customerId)
+                        "SUCCESS" -> CustomAppointments(navController, ownerCustomerHistoryVM.appointments)
                     }
                 }
-                when (ownerCustomerVM.customersResult) {
+                when (ownerCustomerHistoryVM.appointmentsResult) {
                     "LOADING" -> CircularProgressIndicator()
                 }
             }
@@ -70,9 +56,10 @@ fun OwnerCustomerScreen(
 
 @Composable
 @Preview(showBackground = true)
-fun OwnerCustomerScreenPreview() {
-    OwnerCustomerScreen(
+fun OwnerCustomerHistoryScreenPreview() {
+    OwnerCustomerHistoryScreen(
         navController = rememberNavController(),
-        ownerCustomerVM = viewModel()
+        ownerCustomerHistoryVM = viewModel(),
+        customerId = "1"
     )
 }

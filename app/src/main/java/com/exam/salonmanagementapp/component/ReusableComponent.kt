@@ -18,9 +18,13 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,6 +36,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
@@ -42,6 +47,8 @@ import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.data.Appointment
 import com.exam.salonmanagementapp.data.Customer
 import com.exam.salonmanagementapp.data.Product
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 @Composable
@@ -128,127 +135,129 @@ fun TitleText(
     )
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun CustomerBackground(
     navController: NavController,
     content: @Composable ()-> Unit
 ) {
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-    val scrollState = rememberScrollState()
-
     val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
     val customerId = sharedPreference.getString("customerId", null)
+    val customerName = sharedPreference.getString("customerName", "")
     if (customerId == null) {
-        navController.navigate(route = Screen.CustomerLanding.route)
+        navController.navigate(route = Screen.Login.route)
         return
     }
 
-    Column(
+    val scrollState = rememberScrollState()
+
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { CustomerTopBar(navController = navController, customerName = customerName!!) },
+        content = { CustomerContent(navController = navController, content = content, scrollState = scrollState ) },
+        bottomBar = { CustomerBottomBar(navController = navController) }
+    )
+}
+
+@Composable
+fun CustomerTopBar(
+    navController: NavController,
+    customerName: String
+) {
+    TopAppBar(
+        title = {
+            Text(text = "Hi! $customerName")
+        },
+        actions = {
+            // lock icon
+            IconButton(onClick = {
+                navController.navigate(route = Screen.Login.route)
+            }) {
+                Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Lock")
+            }
+        },
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    )
+}
+
+@Composable
+fun CustomerTopBar(
+    navController: NavController,
+    title: String,
+    navigationIcon: @Composable (() -> Unit)?,
+    actions: @Composable RowScope.() -> Unit,
+) {
+    TopAppBar(
+        title = {
+            Text(text = title)
+        },
+        navigationIcon = navigationIcon,
+        actions = actions,
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    )
+}
+
+
+@Composable
+fun CustomerContent(
+    navController: NavController,
+    scrollState: ScrollState,
+    content: @Composable ()-> Unit
+) {
+    Box(
         modifier = Modifier
             .fillMaxHeight()
             .paint(
                 painter = painterResource(R.drawable.salon_bg2),
                 contentScale = ContentScale.Crop
             )
+            .background(
+                color = Color.White.copy(alpha = 0.9f)
+            )
             .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.SpaceBetween
+        contentAlignment = Alignment.TopCenter
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                    .background(
-                        color = Color.Black.copy(alpha = 0.8f)
-                    )
-                    .fillMaxWidth(0.9f),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TitleText(text = "Hello")
-                Image(
-                    painter = painterResource(R.drawable.profile),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .size(35.dp)
-                        .clip(shape = RoundedCornerShape(20.dp)),
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(vertical = 20.dp)
-                    .clip(shape = RoundedCornerShape(15.dp))
-                    .background(
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                    .fillMaxWidth(0.9f)
-                    .padding(20.dp),
-            ) {
-                content()
-            }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color.Black.copy(alpha = 0.8f)
-                ),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.CustomerAppointment.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.EditCalendar,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        Toast.makeText(context, "Click!", Toast.LENGTH_SHORT).show()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.History,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    onClick = {
-                        navController.navigate(route = Screen.Login.route)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Logout,
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-            }
-        }
+        content()
     }
 }
+
+@Composable
+fun CustomerBottomBar(
+    navController: NavController,
+) {
+    val selectedIndex = remember { mutableStateOf(0) }
+    BottomNavigation(
+        elevation = 10.dp,
+        backgroundColor = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White
+    ) {
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.EditCalendar,"")
+            },
+            selected = (selectedIndex.value == 0),
+            onClick = {
+                selectedIndex.value = 0
+                navController.navigate(route = Screen.CustomerAppointment.route)
+            }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(imageVector = Icons.Default.History,"")
+            },
+            selected = (selectedIndex.value == 1),
+            onClick = {
+                selectedIndex.value = 1
+                navController.navigate(route = Screen.CustomerHistory.route)
+            }
+        )
+    }
+}
+
 
 @Composable
 fun CustomDropDownMenu(
@@ -463,19 +472,7 @@ fun OwnerBackground(
     navController: NavController,
     content: @Composable ()-> Unit
 ) {
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
-
-    /*
-    val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
-    val customerId = sharedPreference.getString("customerId", null)
-    if (customerId == null) {
-        navController.navigate(route = Screen.CustomerLanding.route)
-        return
-    }
-
-     */
 
     val scaffoldState = rememberScaffoldState()
     Scaffold(
@@ -484,72 +481,6 @@ fun OwnerBackground(
         content = { OwnerContent(navController = navController, content = content, scrollState = scrollState ) },
         bottomBar = { OwnerBottomBar(navController = navController) }
     )
-
-    /*
-
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .paint(
-                painter = painterResource(R.drawable.salon_bg2),
-                contentScale = ContentScale.Crop
-            )
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                    .background(
-                        color = Color.Black.copy(alpha = 0.8f)
-                    )
-                    .fillMaxWidth(0.9f),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TitleText(text = "Hello")
-                Image(
-                    painter = painterResource(R.drawable.profile),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .size(35.dp)
-                        .clip(shape = RoundedCornerShape(20.dp)),
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(vertical = 20.dp)
-                    .clip(shape = RoundedCornerShape(15.dp))
-                    .background(
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                    .fillMaxWidth(0.9f)
-                    .padding(20.dp),
-            ) {
-                content()
-            }
-        }
-        BottomNavigation(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color.Black.copy(alpha = 0.8f)
-                ),
-            backgroundColor = Color.Black.copy(alpha = 0.8f)
-        ) {
-            OwnerBottomNav(navController = navController)
-        }
-    }
-
-     */
 }
 
 @Composable
@@ -597,7 +528,7 @@ fun OwnerContent(
     scrollState: ScrollState,
     content: @Composable ()-> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxHeight()
             .paint(
@@ -608,7 +539,7 @@ fun OwnerContent(
                 color = Color.White.copy(alpha = 0.9f)
             )
             .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentAlignment = Alignment.TopCenter
     ) {
         content()
     }
@@ -736,6 +667,25 @@ fun CustomProducts(
     }
 }
 
+fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
+    factory = {
+        val density = LocalDensity.current
+        val strokeWidthPx = density.run { strokeWidth.toPx() }
+
+        Modifier.drawBehind {
+            val width = size.width
+            val height = size.height - strokeWidthPx/2
+
+            drawLine(
+                color = color,
+                start = Offset(x = 0f, y = height),
+                end = Offset(x = width , y = height),
+                strokeWidth = strokeWidthPx
+            )
+        }
+    }
+)
+
 @Composable
 fun CustomAppointments(
     navController: NavController,
@@ -746,7 +696,7 @@ fun CustomAppointments(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 10.dp),
+                    .bottomBorder(1.dp, Color.DarkGray),
             ) {
                 Card(
                     modifier = Modifier
@@ -757,7 +707,7 @@ fun CustomAppointments(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ){
                         IconButton(
@@ -766,7 +716,7 @@ fun CustomAppointments(
                             }
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Update,
+                                imageVector = Icons.Filled.CalendarMonth,
                                 contentDescription = "",
                                 tint = Color.Black
                             )
@@ -778,20 +728,8 @@ fun CustomAppointments(
                             verticalArrangement = Arrangement.Center,
 
                             ) {
-                            Text(text = it.appointmentDate + " " + it.appointmentTime)
+                            Text(text = SimpleDateFormat("dd/MM/yyyy").format(it.appointmentDate) + " " + it.appointmentTime)
                             Text(text = it.service)
-                        }
-
-                        IconButton(
-                            onClick = {
-
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "",
-                                tint = Color.Black
-                            )
                         }
                     }
                 }
@@ -804,42 +742,50 @@ fun CustomAppointments(
 @Composable
 fun CustomCustomerDetails(
     navController: NavController,
-    customer: Customer
-    ){
-    Card(
-        modifier = Modifier
-            .clip(shape = RoundedCornerShape(15.dp))
-            .fillMaxWidth(),
-        backgroundColor = Color.LightGray
-    ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
+    customers: List<Customer>
+){
+    if (customers.isNotEmpty()) {
+        customers.map {
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Center,
-
-                ) {
-                Text(text = "Name: " + customer.name)
-                Text(text = "Phone: " + customer.phone)
-                Text(text = "Email: " + customer.email)
-            }
-
-            IconButton(
-                onClick = {
-                    navController.navigate(route = Screen.OwnerCustomerDetail.passId(customer.id))
-                }
+                    .fillMaxWidth()
+                    .bottomBorder(1.dp, Color.DarkGray),
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Wysiwyg,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    backgroundColor = Color.LightGray
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        IconButton(
+                            onClick = {
+                                navController.navigate(route = Screen.OwnerCustomerDetail.passId(it.id))
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Wysiwyg,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
+
+                            ) {
+                            Text(text = "Name: " + it.name)
+                            Text(text = "Phone: " + it.phone)
+                        }
+                    }
+                }
             }
         }
     }

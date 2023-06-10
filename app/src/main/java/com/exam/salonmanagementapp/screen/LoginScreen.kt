@@ -11,10 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Password
@@ -37,6 +34,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
@@ -44,6 +42,7 @@ import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.component.CustomTextField
 import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Customer
+import com.exam.salonmanagementapp.viewmodel.LoginViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -51,66 +50,14 @@ import com.google.firebase.ktx.Firebase
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    loginVM: LoginViewModel
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    var validateEmail by rememberSaveable { mutableStateOf(true) }
-    var validatePassword by rememberSaveable { mutableStateOf(true) }
     var isPasswordVisisble by rememberSaveable { mutableStateOf(false) }
-
-    fun validateData(email: String, password: String): Boolean {
-
-        validateEmail = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        validatePassword = password.isNotBlank()
-
-        return validateEmail && validatePassword
-    }
-
-    fun login(email: String, password: String) {
-        if (validateData(email, password)){
-            if (email.equals("admin@gmail.com") && password.equals("admin") )
-            {
-                navController.navigate(route = Screen.OwnerLanding.route)
-            }
-            else {
-
-                val db = Firebase.firestore
-                db.collection(DataConstant.TABLE_CUSTOMER)
-                    .whereEqualTo("email", email)
-                    .get()
-                    .addOnSuccessListener { documents ->
-                        System.out.println("documents.size() => " + documents.size())
-                        if (!documents.isEmpty) {
-                            val customer = documents.first().toObject<Customer>()
-                            System.out.println("User found")
-                            if (customer.password == password) {
-                                val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
-                                var editor = sharedPreference.edit()
-                                editor.putString("customerId", documents.first().id)
-                                editor.commit()
-
-                                navController.navigate(route = Screen.CustomerLanding.route)
-                            }
-                            else{
-                                Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
-                            }
-
-                        }
-                        else {
-                            Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            }
-
-
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -134,10 +81,10 @@ fun LoginScreen(
         ) {
 
             CustomTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = loginVM.email,
+                onValueChange = { loginVM.email = it },
                 label = "Email",
-                showError = !validateEmail,
+                showError = !loginVM.validateEmail,
                 errorMessage = context.resources.getString(R.string.validate_email_error),
                 leadingIconImageVector = Icons.Default.AlternateEmail,
                 keyboardOptions = KeyboardOptions(
@@ -149,10 +96,10 @@ fun LoginScreen(
                 )
             )
             CustomTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = loginVM.password,
+                onValueChange = { loginVM.password = it },
                 label = "Password",
-                showError = !validatePassword,
+                showError = !loginVM.validatePassword,
                 errorMessage = context.resources.getString(R.string.validate_password_error),
                 isPasswordField = true,
                 isPasswordVisible = isPasswordVisisble,
@@ -168,7 +115,7 @@ fun LoginScreen(
             )
             Button(
                 onClick = {
-                    login(email, password)
+                    loginVM.login(context)
                 },
                 modifier = Modifier
                     .padding(horizontal = 0.dp, vertical = 20.dp)
@@ -193,6 +140,21 @@ fun LoginScreen(
                     }
                 )
         }
+        //System.out.println("loginVM.loginResult => ${loginVM.loginResult}")
+        when (loginVM.loginResult) {
+            "LOADING" -> {
+                CircularProgressIndicator()
+            }
+            "SUCCESS_ADMIN" -> {
+                navController.navigate(route = Screen.OwnerLanding.route)
+            }
+            "SUCCESS_CUSTOMER" -> {
+                navController.navigate(route = Screen.CustomerLanding.route)
+            }
+            "FAILED" -> {
+                Toast.makeText(context, "Invalid username or password!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
 
@@ -200,6 +162,7 @@ fun LoginScreen(
 @Preview(showBackground = true)
 fun LoginScreenPreview() {
     LoginScreen(
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        loginVM = viewModel()
     )
 }

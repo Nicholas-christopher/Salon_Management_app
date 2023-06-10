@@ -68,10 +68,12 @@ fun  OwnerProductScreen(
         },
         content = { padding->
             OwnerContent(navController = navController, scrollState = scrollState ) {
-                when (ownerProductVM.productsResult) {
-                    "" -> ownerProductVM.getProducts()
-                    "LOADING" -> CircularProgressIndicator()
-                    "SUCCESS" -> CustomProducts(navController, ownerProductVM.products)
+                Column() {
+                    when (ownerProductVM.productsResult) {
+                        "" -> ownerProductVM.getProducts()
+                        "LOADING" -> CircularProgressIndicator()
+                        "SUCCESS" -> CustomProducts(navController, ownerProductVM.products)
+                    }
                 }
             }
         },
