@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.exam.salonmanagementapp.R
+import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.component.*
 import com.exam.salonmanagementapp.viewmodel.CustomerLandingViewModel
 import com.exam.salonmanagementapp.viewmodel.OwnerLandingViewModel
@@ -56,7 +57,7 @@ fun CustomerLandingScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     when (customerLandingVM.appointmentsResult) {
                         "" -> customerLandingVM.getTodayAppointments(customerId!!)
-                        "SUCCESS" -> CustomAppointments(navController, customerLandingVM.appointments)
+                        "SUCCESS" -> CustomAppointments(navController, customerLandingVM.appointments, Screen.CustomerAppointmentDetail)
                     }
                 }
                 when (customerLandingVM.appointmentsResult) {

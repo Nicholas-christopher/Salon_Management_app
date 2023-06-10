@@ -51,7 +51,7 @@ fun OwnerLandingScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     when (ownerLandingVM.appointmentsResult) {
                         "" -> ownerLandingVM.getTodayAppointments()
-                        "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments)
+                        "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments, Screen.OwnerAppointmentDetail)
                     }
                 }
                 when (ownerLandingVM.appointmentsResult) {
@@ -67,8 +67,8 @@ fun OwnerLandingScreen(
 @Composable
 @Preview(showBackground = true)
 fun OwnerLandingScreenPreview() {
-OwnerLandingScreen(
-    navController = rememberNavController(),
-    ownerLandingVM = viewModel()
-)
+    OwnerLandingScreen(
+        navController = rememberNavController(),
+        ownerLandingVM = viewModel()
+    )
 }

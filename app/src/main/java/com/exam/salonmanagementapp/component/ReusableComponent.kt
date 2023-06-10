@@ -690,6 +690,7 @@ fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
 fun CustomAppointments(
     navController: NavController,
     appointments: List<Appointment>,
+    detailRoute: Screen
 ){
     if (appointments.isNotEmpty()) {
         appointments.map {
@@ -712,7 +713,7 @@ fun CustomAppointments(
                     ){
                         IconButton(
                             onClick = {
-                                navController.navigate(route = Screen.OwnerAppointmentDetail.passId(it.appointmentId))
+                                navController.navigate(route = (detailRoute.route.replace("{id}", it.appointmentId)))
                             }
                         ) {
                             Icon(

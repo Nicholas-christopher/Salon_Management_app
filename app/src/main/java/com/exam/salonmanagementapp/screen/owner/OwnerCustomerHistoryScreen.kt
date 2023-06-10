@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.exam.salonmanagementapp.Screen
 import com.exam.salonmanagementapp.component.*
 import com.exam.salonmanagementapp.viewmodel.OwnerCustomerHistoryViewModel
 
@@ -42,7 +43,7 @@ fun OwnerCustomerHistoryScreen(
                 Column() {
                     when (ownerCustomerHistoryVM.appointmentsResult) {
                         "" -> ownerCustomerHistoryVM.getCustomerAppointmentHistory(customerId)
-                        "SUCCESS" -> CustomAppointments(navController, ownerCustomerHistoryVM.appointments)
+                        "SUCCESS" -> CustomAppointments(navController, ownerCustomerHistoryVM.appointments, Screen.OwnerAppointmentDetail)
                     }
                 }
                 when (ownerCustomerHistoryVM.appointmentsResult) {

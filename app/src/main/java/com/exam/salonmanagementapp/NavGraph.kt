@@ -14,11 +14,7 @@ import com.exam.salonmanagementapp.repository.PaymentRepository
 import com.exam.salonmanagementapp.repository.ProductRepository
 import com.exam.salonmanagementapp.screen.LoginScreen
 import com.exam.salonmanagementapp.screen.RegistrationScreen
-import com.exam.salonmanagementapp.screen.customer.CustomerAppointmentScreen
-import com.exam.salonmanagementapp.screen.customer.CustomerHistoryDetailScreen
-import com.exam.salonmanagementapp.screen.customer.CustomerHistoryScreen
-import com.exam.salonmanagementapp.screen.customer.CustomerLandingScreen
-import com.exam.salonmanagementapp.screen.customer.CustomerProfileScreen
+import com.exam.salonmanagementapp.screen.customer.*
 import com.exam.salonmanagementapp.screen.owner.*
 import com.exam.salonmanagementapp.viewmodel.*
 
@@ -51,12 +47,14 @@ fun SetupNavGraph(
         composable(
             route = Screen.CustomerAppointment.route
         ) {
-            CustomerAppointmentScreen(navController = navController)
+            val customerAppointmentVM: CustomerAppointmentViewModel = CustomerAppointmentViewModel(appointmentRepository = AppointmentRepository())
+            CustomerAppointmentScreen(navController = navController, customerAppointmentVM = customerAppointmentVM)
         }
         composable(
             route = Screen.CustomerHistory.route
         ) {
-            CustomerHistoryScreen(navController = navController)
+            val ownerCustomerHistoryVM: OwnerCustomerHistoryViewModel = OwnerCustomerHistoryViewModel(appointmentRepository = AppointmentRepository())
+            CustomerHistoryScreen(navController = navController, ownerCustomerHistoryVM = ownerCustomerHistoryVM)
         }
         composable(
             route = Screen.CustomerHistoryDetail.route,
@@ -65,6 +63,15 @@ fun SetupNavGraph(
             })
         ) {
             CustomerHistoryDetailScreen(navController = navController)
+        }
+        composable(
+            route = Screen.CustomerAppointmentDetail.route,
+            arguments = listOf(navArgument("id"){
+                type = NavType.StringType
+            })
+        ) {
+            val ownerAppointmentDetailVM: OwnerAppointmentDetailViewModel = OwnerAppointmentDetailViewModel(appointmentRepository = AppointmentRepository(), customerRepository = CustomerRepository())
+            CustomerAppointmentDetailScreen(navController = navController, ownerAppointmentDetailVM = ownerAppointmentDetailVM, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.CustomerProfile.route
@@ -86,14 +93,6 @@ fun SetupNavGraph(
             val ownerAppointmentDetailVM: OwnerAppointmentDetailViewModel = OwnerAppointmentDetailViewModel(appointmentRepository = AppointmentRepository(), customerRepository = CustomerRepository())
             val ownerPaymentVM: OwnerPaymentViewModel = OwnerPaymentViewModel(appointmentRepository = AppointmentRepository(), paymentRepository = PaymentRepository())
             OwnerPaymentScreen(navController = navController, ownerAppointmentDetailVM= ownerAppointmentDetailVM, ownerPaymentVM = ownerPaymentVM, appointmentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
-        }
-        composable(
-            route = Screen.OwnerPaymentDetail.route,
-            arguments = listOf(navArgument(ARGUMENT_KEY_ID){
-                type = NavType.StringType
-            })
-        ) {
-            OwnerPaymentDetailScreen(navController = navController, paymentId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
         }
         composable(
             route = Screen.OwnerProduct.route

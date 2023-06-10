@@ -13,6 +13,11 @@ sealed class Screen(val route: String) {
             return "owner_history_detail_screen/$id"
         }
     }
+    object CustomerAppointmentDetail: Screen(route = "customer_appointment_detail_screen/{$ARGUMENT_KEY_ID}") {
+        fun passId(id: String): String{
+            return "customer_appointment_detail_screen/$id"
+        }
+    }
     object CustomerProfile: Screen(route = "customer_profile_screen")
     object OwnerLanding: Screen(route = "owner_landing_screen")
     object OwnerPayment: Screen(route = "owner_payment_screen/{$ARGUMENT_KEY_ID}") {

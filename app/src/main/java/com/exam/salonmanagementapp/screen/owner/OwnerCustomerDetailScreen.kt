@@ -123,7 +123,7 @@ fun  OwnerCustomerDetailScreen(
                     Column() {
                         when (ownerCustomerDetailVM.appointmentsResult) {
                             "" -> ownerCustomerDetailVM.getCustomerAppointments(customerId)
-                            "SUCCESS" -> CustomAppointments(navController, ownerCustomerDetailVM.appointments)
+                            "SUCCESS" -> CustomAppointments(navController, ownerCustomerDetailVM.appointments, Screen.OwnerAppointmentDetail)
                         }
                     }
                     when (ownerCustomerDetailVM.appointmentsResult) {

@@ -9,4 +9,7 @@
     <string name="validate_product_quantityUsed">Quantity of the product must be bigger than the Used Product</string>
     <string name="owner_customer_list_title">Customer(s)</string>
     <string name="validate_amount_error">Amount format seems incorrect</string>
+    <string name="validate_appointment_date">Please input a valid appointment date</string>
+    <string name="validate_appointment_time">Please input a valid appointment time</string>
+    <string name="validate_appointment_service">Please input a valid appointment service</string>
 </resources>

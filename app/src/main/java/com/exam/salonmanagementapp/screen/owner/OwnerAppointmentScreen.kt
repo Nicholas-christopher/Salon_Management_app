@@ -52,7 +52,7 @@ fun  OwnerAppointmentScreen(
                 Column() {
                     when (ownerAppointmentVM.appointmentsResult) {
                         "" -> ownerAppointmentVM.getAppointments()
-                        "SUCCESS" -> CustomAppointments(navController, ownerAppointmentVM.appointments)
+                        "SUCCESS" -> CustomAppointments(navController, ownerAppointmentVM.appointments, Screen.OwnerAppointmentDetail)
                     }
                 }
                 when (ownerAppointmentVM.appointmentsResult) {

@@ -17,6 +17,20 @@ class AppointmentRepository {
 
     val db = Firebase.firestore
 
+    suspend fun makeAppointment(appointment: Appointment): Result<Boolean> {
+        lateinit var result:Result<Boolean>
+        db.collection(DataConstant.TABLE_APPOINTMENT)
+            .document(appointment.appointmentId)
+            .set(appointment)
+            .addOnSuccessListener {
+                result = Result.Success(true)
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }
+            .await()
+        return result
+    }
+
     suspend fun getAppointments(): Result<List<Appointment>> {
         lateinit var result:Result<List<Appointment>>
         var today : Calendar = Calendar.getInstance()
@@ -105,7 +119,7 @@ class AppointmentRepository {
         db.collection(DataConstant.TABLE_APPOINTMENT).where(
             Filter.and(
                 Filter.equalTo("customerId", customerId),
-                Filter.lessThanOrEqualTo("appointmentDate", today.time)
+                Filter.lessThan("appointmentDate", today.time)
             )
         )
             .orderBy("appointmentDate", Query.Direction.ASCENDING)
