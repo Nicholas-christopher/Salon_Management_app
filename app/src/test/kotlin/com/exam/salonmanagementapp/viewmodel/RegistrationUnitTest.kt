@@ -1,4 +1,4 @@
-package com.exam.salonmanagementapp
+package com.exam.salonmanagementapp.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

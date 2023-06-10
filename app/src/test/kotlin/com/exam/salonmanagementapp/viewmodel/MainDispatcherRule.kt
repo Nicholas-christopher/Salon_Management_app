@@ -1,4 +1,4 @@
-package com.exam.salonmanagementapp
+package com.exam.salonmanagementapp.viewmodel
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
