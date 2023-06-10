@@ -32,6 +32,23 @@ class CustomerRepository() {
         return result
     }
 
+    suspend fun getCustomerByEmail(email: String): Result<Customer> {
+        lateinit var result: Result<Customer>
+        db.collection(DataConstant.TABLE_CUSTOMER)
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.first().toObject<Customer>())
+                } else {
+                    result = Result.Error(Exception("No result return"))
+                }
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }.await()
+        return result
+    }
+
     suspend fun login(email: String, password: String): Result<Customer> {
         lateinit var result:Result<Customer>
         db.collection(DataConstant.TABLE_CUSTOMER)

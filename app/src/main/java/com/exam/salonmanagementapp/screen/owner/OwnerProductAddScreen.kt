@@ -104,52 +104,54 @@ fun OwnerProductAddScreen(
         },
         content = { padding->
             OwnerContent(navController = navController, scrollState = scrollState ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = if (useImageUri) rememberAsyncImagePainter(
-                            ImageRequest
-                                .Builder(LocalContext.current)
-                                .data(data = ownerProductAddVM.imageUri)
-                                .build()
-                        ) else painter,
-                        contentDescription = "",
+                Column() {
+                    Column(
                         modifier = Modifier
-                            .size(100.dp)
-                            .clickable {
-                                launcher.launch("image/*")
-                            },
-                        contentScale = ContentScale.Crop
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = if (useImageUri) rememberAsyncImagePainter(
+                                ImageRequest
+                                    .Builder(LocalContext.current)
+                                    .data(data = ownerProductAddVM.imageUri)
+                                    .build()
+                            ) else painter,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clickable {
+                                    launcher.launch("image/*")
+                                },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    CustomTextField(
+                        value = ownerProductAddVM.productName,
+                        onValueChange = { ownerProductAddVM.productName = it },
+                        label = "Product Name",
+                        leadingIconImageVector = Icons.Default.Description,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                    CustomTextField(
+                        value = ownerProductAddVM.quantity,
+                        onValueChange = {  ownerProductAddVM.quantity = it },
+                        label = "Product Quantity",
+                        leadingIconImageVector = Icons.Default.Description,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        )
                     )
                 }
-                CustomTextField(
-                    value = ownerProductAddVM.productName,
-                    onValueChange = { ownerProductAddVM.productName = it },
-                    label = "Product Name",
-                    leadingIconImageVector = Icons.Default.Description,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    )
-                )
-                CustomTextField(
-                    value = ownerProductAddVM.quantity,
-                    onValueChange = {  ownerProductAddVM.quantity = it },
-                    label = "Product Quantity",
-                    leadingIconImageVector = Icons.Default.Description,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    )
-                )
-            }
-            when (ownerProductAddVM.addProductResult) {
-                "LOADING" -> CircularProgressIndicator()
-                "SUCCESS" -> navController.popBackStack()
+                when (ownerProductAddVM.addProductResult) {
+                    "LOADING" -> CircularProgressIndicator()
+                    "SUCCESS" -> navController.popBackStack()
+                }
             }
         },
         bottomBar = { OwnerBottomBar(navController = navController) }

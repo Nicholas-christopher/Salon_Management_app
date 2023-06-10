@@ -57,14 +57,6 @@ fun SetupNavGraph(
             CustomerHistoryScreen(navController = navController, ownerCustomerHistoryVM = ownerCustomerHistoryVM)
         }
         composable(
-            route = Screen.CustomerHistoryDetail.route,
-            arguments = listOf(navArgument("id"){
-                type = NavType.StringType
-            })
-        ) {
-            CustomerHistoryDetailScreen(navController = navController)
-        }
-        composable(
             route = Screen.CustomerAppointmentDetail.route,
             arguments = listOf(navArgument("id"){
                 type = NavType.StringType
@@ -81,7 +73,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.OwnerLanding.route
         ) {
-            val ownerLandingVM: OwnerLandingViewModel = OwnerLandingViewModel(appointmentRepository = AppointmentRepository())
+            val ownerLandingVM: OwnerLandingViewModel = OwnerLandingViewModel(appointmentRepository = AppointmentRepository(), productRepository = ProductRepository())
             OwnerLandingScreen(navController = navController, ownerLandingVM = ownerLandingVM)
         }
         composable(
@@ -106,7 +98,8 @@ fun SetupNavGraph(
                 type = NavType.StringType
             })
         ) {
-            OwnerProductDetailScreen(navController = navController, productId = it.arguments?.getString(ARGUMENT_KEY_ID).toString())
+            val ownerProductDetailVM: OwnerProductDetailViewModel = OwnerProductDetailViewModel(productRepository = ProductRepository())
+            OwnerProductDetailScreen(navController = navController, productId = it.arguments?.getString(ARGUMENT_KEY_ID).toString(), ownerProductDetailVM = ownerProductDetailVM)
         }
         composable(
             route = Screen.OwnerProductAdd.route

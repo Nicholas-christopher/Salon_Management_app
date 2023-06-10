@@ -43,7 +43,12 @@ class AppointmentRepository {
             .orderBy("appointmentDate", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.toObjects<Appointment>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Appointment>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }
@@ -57,7 +62,12 @@ class AppointmentRepository {
             .whereEqualTo("appointmentId", appointmentId)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.first().toObject<Appointment>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.first().toObject<Appointment>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }
@@ -65,7 +75,7 @@ class AppointmentRepository {
         return result
     }
 
-    suspend fun getTodayAppointments(appointmentDate: String): Result<List<Appointment>> {
+    suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         lateinit var result:Result<List<Appointment>>
         var today : Calendar = Calendar.getInstance()
         today.set(Calendar.HOUR, 0)
@@ -77,7 +87,12 @@ class AppointmentRepository {
             .orderBy("appointmentDate", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.toObjects<Appointment>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Appointment>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }
@@ -101,7 +116,12 @@ class AppointmentRepository {
             .orderBy("appointmentDate", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.toObjects<Appointment>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Appointment>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }
@@ -125,7 +145,12 @@ class AppointmentRepository {
             .orderBy("appointmentDate", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.toObjects<Appointment>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Appointment>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }

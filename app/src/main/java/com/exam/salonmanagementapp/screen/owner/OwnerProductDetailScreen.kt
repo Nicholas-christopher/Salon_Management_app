@@ -11,17 +11,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.PanToolAlt
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Remove
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,18 +37,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.exam.salonmanagementapp.R
 import com.exam.salonmanagementapp.Screen
-import com.exam.salonmanagementapp.component.CustomListItem
-import com.exam.salonmanagementapp.component.CustomTextField
-import com.exam.salonmanagementapp.component.OwnerBackground
+import com.exam.salonmanagementapp.component.*
 import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Customer
 import com.exam.salonmanagementapp.data.Product
+import com.exam.salonmanagementapp.viewmodel.OwnerProductDetailViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -59,137 +58,107 @@ import com.google.firebase.storage.FirebaseStorage
 @Composable
 fun OwnerProductDetailScreen (
     navController: NavController,
+    ownerProductDetailVM: OwnerProductDetailViewModel,
     productId: String
 ) {
     val context = LocalContext.current
 
-    OwnerBackground (
-        navController = navController
-    ) {
-        var productName by remember { mutableStateOf("") }
-        var quantity by remember { mutableStateOf("") }
-        var imageUri by remember { mutableStateOf("") }
-        var useImageUri by remember { mutableStateOf(false) }
-        val painter: Painter = painterResource(id = R.drawable.profile)
-        var quantityUsed by remember { mutableStateOf("0") }
-        var validateQuantityUsed by remember { mutableStateOf(true) }
-
-        val db = Firebase.firestore
-        db.collection(DataConstant.TABLE_PRODUCT)
-            .whereEqualTo("id", productId)
-            .get()
-            .addOnSuccessListener { documents ->
-                System.out.println("documents.size() => " + documents.size())
-                if (!documents.isEmpty) {
-                    val product = documents.first().toObject<Product>()
-                    productName = product.productName
-                    quantity = product.quantity.toString()
-                    imageUri = product.productImage
-                    useImageUri = true
-                }
-            }
-
-        fun validateData(quantityUsed: Int ): Boolean {
-            validateQuantityUsed = quantity.toInt() >= quantityUsed
-            return validateQuantityUsed
-        }
-
-        fun saveProduct( quantityUsed: Int ) {
-            if (validateData( quantityUsed )){
-                val db = Firebase.firestore
-                val product = Product(productId, productName, imageUri, quantity.toInt() - quantityUsed)
-
-                db.collection(DataConstant.TABLE_PRODUCT)
-                    .document(product.id)
-                    .set(product)
-                    .addOnSuccessListener {
+    val scrollState = rememberScrollState()
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            OwnerTopBar(
+                navController = navController,
+                title = "Product(s)",
+                navigationIcon = {
+                    IconButton(onClick = {
                         navController.popBackStack()
-                    }.addOnFailureListener {
-                        Toast.makeText(context, "Add product failed!", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Icon(Icons.Filled.ArrowBack, "back")
                     }
-
-            }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = if (useImageUri) rememberImagePainter(
-                    ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(data = imageUri)
-                        .build()
-                ) else painter,
-                contentDescription = "",
-                modifier = Modifier
-                    .size(100.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Text(
-                text = "Product Name : $productName",
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-
-            )
-
-            Text(
-                text = "Product Quantity :  ${quantity.toString()}",
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-
-            )
-
-            CustomTextField(
-                value = quantityUsed,
-                onValueChange = { quantityUsed = it },
-                label = "Product Used",
-                showError = !validateQuantityUsed,
-                errorMessage = context.resources.getString(R.string.validate_product_quantityUsed),
-                leadingIconImageVector = Icons.Default.Description,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 5.dp),
-            ) {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Button(
-                        onClick = {
-                            navController.popBackStack()
-                        },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
-                    ) {
-                        Text(
-                            text = "Cancel"
-                        )
+                },
+                actions = {
+                    IconButton(onClick = {
+                        ownerProductDetailVM.addProduct()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add")
                     }
-                    Button(
-                        onClick = {
-                            saveProduct(quantityUsed.toInt())
-                        },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue, contentColor = Color.White)
-                    ) {
-                        Text(
-                            text = "Use Product"
-                        )
+                    IconButton(onClick = {
+                        ownerProductDetailVM.useProduct()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Remove, contentDescription = "use")
+                    }
+                    IconButton(onClick = {
+                        ownerProductDetailVM.deleteProduct()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = "delete")
                     }
                 }
+            )
+        },
+        content = { padding->
+            OwnerContent(navController = navController, scrollState = scrollState ) {
+                Column() {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = if (ownerProductDetailVM.useImageUri) rememberAsyncImagePainter(
+                                ImageRequest
+                                    .Builder(LocalContext.current)
+                                    .data(data = ownerProductDetailVM.product.productImage)
+                                    .build()
+                            ) else painterResource(id = R.drawable.profile),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(100.dp),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        Text(
+                            text = "Product Name : ${ownerProductDetailVM.product.productName}",
+                            modifier = Modifier
+                                .padding(vertical = 10.dp)
+
+                        )
+
+                        Text(
+                            text = "Product Quantity :  ${ownerProductDetailVM.product.quantity.toString()}",
+                            modifier = Modifier
+                                .padding(vertical = 10.dp)
+
+                        )
+                    }
+
+                    CustomTextField(
+                        value = ownerProductDetailVM.quantity,
+                        onValueChange = { ownerProductDetailVM.quantity = it },
+                        label = "Product Used",
+                        showError = !ownerProductDetailVM.validateQuantity,
+                        errorMessage = context.resources.getString(R.string.validate_product_quantityUsed),
+                        leadingIconImageVector = Icons.Default.Description,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+                when (ownerProductDetailVM.productResult) {
+                    "" -> ownerProductDetailVM.getProduct(productId)
+                    "LOADING" -> CircularProgressIndicator()
+                }
+                when (ownerProductDetailVM.saveProductResult) {
+                    "LOADING" -> CircularProgressIndicator()
+                    "SUCCESS" -> navController.popBackStack()
+                }
             }
-        }
-    }
+        },
+        bottomBar = { OwnerBottomBar(navController = navController) }
+    )
 }
 
 
@@ -198,6 +167,7 @@ fun OwnerProductDetailScreen (
 fun OwnerProductDetailScreenPreview() {
     OwnerProductDetailScreen(
         navController = rememberNavController(),
+        ownerProductDetailVM = viewModel(),
         productId = "1"
     )
 }

@@ -99,4 +99,173 @@ class RegistrationUnitTest {
         assertEquals(true, registrationViewModel.validatePasswordEqual)
         assertEquals(false, registrationViewModel.validated)
     }
+
+    @Test
+    fun `registration - field validation - negative - invalid email`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "tester1"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "T3st#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(false, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(true, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(true, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing phone`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.password = "T3st#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(false, registrationViewModel.validatePhone)
+        assertEquals(true, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(true, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - invalid phone`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "abcd"
+        registrationViewModel.password = "T3st#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(false, registrationViewModel.validatePhone)
+        assertEquals(true, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(true, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing password`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(false, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing lower case letter`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "T3ST#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(false, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing upper case letter`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "t3st#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(false, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing numeric letter`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "Test#ABC"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(false, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - missing special character letter`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "Test1ABC"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(false, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - field validation - negative - mismtach password and confirm password`()  {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "T3st#1234"
+        registrationViewModel.confirmPassword = "T3st#123"
+
+        registrationViewModel.validateData()
+
+        assertEquals(true, registrationViewModel.validateName)
+        assertEquals(true, registrationViewModel.validateEmail)
+        assertEquals(true, registrationViewModel.validatePhone)
+        assertEquals(true, registrationViewModel.validatePassword)
+        assertEquals(true, registrationViewModel.validateConfirmPassword)
+        assertEquals(false, registrationViewModel.validatePasswordEqual)
+        assertEquals(false, registrationViewModel.validated)
+    }
 }

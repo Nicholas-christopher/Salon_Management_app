@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.core.util.PatternsCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exam.salonmanagementapp.data.Admin
@@ -33,8 +34,7 @@ class LoginViewModel @Inject constructor(
 
 
     fun validateData() {
-
-        validateEmail = Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        validateEmail = PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()
         validatePassword = password.isNotBlank()
 
         validated = validateEmail && validatePassword
@@ -51,7 +51,6 @@ class LoginViewModel @Inject constructor(
                     } catch(e: Exception) {
                         Result.Error(Exception("Network request failed"))
                     }
-                    System.out.println("login() => result => $result")
                     when (result) {
                         is Result.Success -> {
                             admin = result.data
@@ -74,7 +73,6 @@ class LoginViewModel @Inject constructor(
                     } catch(e: Exception) {
                         Result.Error(Exception("Network request failed"))
                     }
-                    //System.out.println("login() => result => $result")
                     when (result) {
                         is Result.Success -> {
                             customer = result.data

@@ -6,7 +6,9 @@ import com.exam.salonmanagementapp.constant.DataConstant
 import com.exam.salonmanagementapp.data.Appointment
 import com.exam.salonmanagementapp.data.Customer
 import com.exam.salonmanagementapp.data.Product
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -58,7 +60,76 @@ class ProductRepository {
         db.collection(DataConstant.TABLE_PRODUCT)
             .get()
             .addOnSuccessListener { documents ->
-                result = Result.Success(documents.toObjects<Product>())
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Product>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }
+            .await()
+        return result
+    }
+
+    suspend fun getProduct(productId: String): Result<Product> {
+        lateinit var result:Result<Product>
+        db.collection(DataConstant.TABLE_PRODUCT)
+            .whereEqualTo("id", productId)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.first().toObject<Product>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }
+            .await()
+        return result
+    }
+
+    suspend fun saveProduct(product: Product): Result<Boolean> {
+        lateinit var result:Result<Boolean>
+        db.collection(DataConstant.TABLE_PRODUCT)
+            .document(product.id)
+            .set(product)
+            .addOnSuccessListener {
+                result = Result.Success(true)
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }.await()
+        return result
+    }
+
+    suspend fun deleteProduct(product: Product): Result<Boolean> {
+        lateinit var result:Result<Boolean>
+        db.collection(DataConstant.TABLE_PRODUCT)
+            .document(product.id)
+            .delete()
+            .addOnSuccessListener {
+                result = Result.Success(true)
+            }.addOnFailureListener {
+                result = Result.Error(Exception("Database opertaion failed"))
+            }.await()
+        return result
+    }
+
+    suspend fun getLowStockProducts(): Result<List<Product>> {
+        lateinit var result:Result<List<Product>>
+        db.collection(DataConstant.TABLE_PRODUCT)
+            .whereLessThanOrEqualTo("quantity", 5)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    result = Result.Success(documents.toObjects<Product>())
+                }
+                else {
+                    result = Result.Error(Exception("No result return"))
+                }
             }.addOnFailureListener {
                 result = Result.Error(Exception("Database opertaion failed"))
             }

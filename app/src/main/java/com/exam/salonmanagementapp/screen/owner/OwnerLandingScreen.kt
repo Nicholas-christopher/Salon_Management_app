@@ -47,15 +47,39 @@ fun OwnerLandingScreen(
         content = { padding ->
             OwnerContent(navController = navController, scrollState = scrollState ) {
                 Column() {
-                    Text(text = "Upcoming Appointment(s)")
-                    Spacer(modifier = Modifier.height(12.dp))
-                    when (ownerLandingVM.appointmentsResult) {
-                        "" -> ownerLandingVM.getTodayAppointments()
-                        "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments, Screen.OwnerAppointmentDetail)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "Upcoming Appointment(s)")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        when (ownerLandingVM.appointmentsResult) {
+                            "" -> ownerLandingVM.getTodayAppointments()
+                            "SUCCESS" -> CustomAppointments(navController, ownerLandingVM.appointments, Screen.OwnerAppointmentDetail)
+                        }
                     }
-                }
-                when (ownerLandingVM.appointmentsResult) {
-                    "LOADING" -> CircularProgressIndicator()
+                    when (ownerLandingVM.appointmentsResult) {
+                        "LOADING" -> CircularProgressIndicator()
+                    }
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "Low Stock Product(s)")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        when (ownerLandingVM.productssResult) {
+                            "" -> ownerLandingVM.getLowStockProducts()
+                            "SUCCESS" -> CustomProductListView(navController, ownerLandingVM.products)
+                        }
+                    }
+                    when (ownerLandingVM.productssResult) {
+                        "LOADING" -> CircularProgressIndicator()
+                    }
                 }
             }
         },

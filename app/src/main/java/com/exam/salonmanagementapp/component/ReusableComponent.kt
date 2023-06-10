@@ -135,32 +135,6 @@ fun TitleText(
     )
 }
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Composable
-fun CustomerBackground(
-    navController: NavController,
-    content: @Composable ()-> Unit
-) {
-    val context = LocalContext.current
-    val sharedPreference =  context.getSharedPreferences("CUSTOMER", Context.MODE_PRIVATE)
-    val customerId = sharedPreference.getString("customerId", null)
-    val customerName = sharedPreference.getString("customerName", "")
-    if (customerId == null) {
-        navController.navigate(route = Screen.Login.route)
-        return
-    }
-
-    val scrollState = rememberScrollState()
-
-    val scaffoldState = rememberScaffoldState()
-    Scaffold(
-        scaffoldState = scaffoldState,
-        topBar = { CustomerTopBar(navController = navController, customerName = customerName!!) },
-        content = { CustomerContent(navController = navController, content = content, scrollState = scrollState ) },
-        bottomBar = { CustomerBottomBar(navController = navController) }
-    )
-}
-
 @Composable
 fun CustomerTopBar(
     navController: NavController,
@@ -168,7 +142,7 @@ fun CustomerTopBar(
 ) {
     TopAppBar(
         title = {
-            Text(text = "Hi! $customerName")
+            Text(text = "Hi $customerName")
         },
         actions = {
             // lock icon
@@ -609,6 +583,52 @@ fun OwnerBottomBar(
 
 
 @Composable
+fun CustomProductListView(
+    navController: NavController,
+    products: List<Product>
+){
+    if (products.isNotEmpty()) {
+        products.map {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bottomBorder(1.dp, Color.DarkGray),
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    backgroundColor = Color.LightGray
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        IconButton(
+                            onClick = {
+                                navController.navigate(route = Screen.OwnerProductDetail.passId(it.id) )
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Wysiwyg,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        }
+
+                        Text(text = "Product Name: ${it.productName}")
+
+                        Text(text = "Quantity Left: ${it.quantity.toString()}")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun CustomProducts(
     navController: NavController,
     products: List<Product>
@@ -618,9 +638,9 @@ fun CustomProducts(
 
     val itemPerRow = 2
     val rows = (products.size / itemPerRow)
-    System.out.println("rows => $rows")
+    //System.out.println("rows => $rows")
     for (i in 0..rows) {
-        System.out.println("column => ${i}")
+        //System.out.println("column => ${i}")
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -632,8 +652,8 @@ fun CustomProducts(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 for (j in 0..itemPerRow-1) {
-                    System.out.println("row => ${j}")
-                    System.out.println("index => ${i*itemPerRow+j}")
+                    //System.out.println("row => ${j}")
+                    //System.out.println("index => ${i*itemPerRow+j}")
                     if (i*itemPerRow+j < products.size-1) {
                         Column(
                             modifier = Modifier
