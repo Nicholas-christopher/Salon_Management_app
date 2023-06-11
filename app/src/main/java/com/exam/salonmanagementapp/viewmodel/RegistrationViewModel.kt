@@ -26,6 +26,8 @@ class RegistrationViewModel @Inject constructor(
     var phone by mutableStateOf("")
     var password by mutableStateOf("")
     var confirmPassword by mutableStateOf("")
+    var saveCustomer by mutableStateOf(Customer())
+        private set
 
     var validateName by mutableStateOf(true)
         private set
@@ -58,6 +60,12 @@ class RegistrationViewModel @Inject constructor(
         validated = validateName && validateEmail && validatePhone && validatePassword && validateConfirmPassword &&  validatePasswordEqual
     }
 
+    fun mapToCustomer() {
+        if (saveCustomer.email != email || saveCustomer.name != name || saveCustomer.phone != phone || saveCustomer.password != password) {
+            saveCustomer = Customer("", email, name, phone, password)
+        }
+    }
+
     fun register() {
         viewModelScope.launch {
             registrationResult = "LOADING"
@@ -73,9 +81,9 @@ class RegistrationViewModel @Inject constructor(
                         registrationResult = "FAILED"
                     }
                     else -> {
-                        val customer = Customer(UUID.randomUUID().toString(), email, name, phone, password)
+                        mapToCustomer()
                         val result = try {
-                            customerRepository.register(customer)
+                            customerRepository.register(saveCustomer)
                         } catch(e: Exception) {
                             Result.Error(Exception("Network request failed"))
                         }

@@ -13,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class CustomerRepository() {
 
@@ -20,9 +21,10 @@ class CustomerRepository() {
 
     suspend fun register(customer: Customer): Result<Boolean> {
         lateinit var result:Result<Boolean>
+        val customerWithId = Customer(UUID.randomUUID().toString(), customer.email, customer.name, customer.phone, customer.password)
         db.collection(DataConstant.TABLE_CUSTOMER)
-            .document(customer.id)
-            .set(customer)
+            .document(customerWithId.id)
+            .set(customerWithId)
             .addOnSuccessListener {
                 result = Result.Success(true)
             }.addOnFailureListener {

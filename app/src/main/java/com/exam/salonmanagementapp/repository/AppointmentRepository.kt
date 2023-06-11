@@ -11,7 +11,8 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
-import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AppointmentRepository {
 
@@ -19,9 +20,10 @@ class AppointmentRepository {
 
     suspend fun makeAppointment(appointment: Appointment): Result<Boolean> {
         lateinit var result:Result<Boolean>
+        val appointmentWithId = Appointment(UUID.randomUUID().toString(), appointment.customerId, appointment.appointmentDate, appointment.appointmentTime, appointment.service, appointment.description)
         db.collection(DataConstant.TABLE_APPOINTMENT)
-            .document(appointment.appointmentId)
-            .set(appointment)
+            .document(appointmentWithId.appointmentId)
+            .set(appointmentWithId)
             .addOnSuccessListener {
                 result = Result.Success(true)
             }.addOnFailureListener {

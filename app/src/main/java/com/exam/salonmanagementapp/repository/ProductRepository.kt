@@ -42,7 +42,7 @@ class ProductRepository {
         }
 
         if (downloadResult) {
-            val productWithUri = Product(product.id, product.productName, remoteUri, product.quantity)
+            val productWithUri = Product(UUID.randomUUID().toString(), product.productName, remoteUri, product.quantity)
             db.collection(DataConstant.TABLE_PRODUCT)
                 .document(productWithUri.id)
                 .set(productWithUri)

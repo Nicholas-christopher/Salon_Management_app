@@ -24,6 +24,7 @@ class OwnerProductAddViewModel @Inject constructor(
     var productName by mutableStateOf("")
     var quantity by mutableStateOf("")
     var imageUri by mutableStateOf<Uri?>(null)
+    var saveProduct by mutableStateOf(Product())
 
     var validateProductName by mutableStateOf(true)
         private set
@@ -36,13 +37,19 @@ class OwnerProductAddViewModel @Inject constructor(
     var addProductResult by mutableStateOf("")
 
     fun validateData() {
-        val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$".toRegex()
+        val quantityRegex = "^[\\d]+".toRegex()
 
         validateProductName = productName.isNotBlank()
-        validateQuantity = quantity.isNotBlank() && quantity.isDigitsOnly()
+        validateQuantity = quantityRegex.matches(quantity)
         validateImageUri = imageUri != null
 
         validated = validateProductName && validateQuantity && validateImageUri
+    }
+
+    fun mapToProduct() {
+        if (saveProduct.productName != productName || saveProduct.quantity != quantity.toInt()) {
+            saveProduct = Product("", productName, "", quantity.toInt())
+        }
     }
 
     fun addProduct() {
@@ -50,9 +57,9 @@ class OwnerProductAddViewModel @Inject constructor(
             addProductResult = "LOADING"
             validateData()
             if (validated) {
-                val product = Product(UUID.randomUUID().toString(), productName, "", quantity.toInt())
+                mapToProduct()
                 val result = try {
-                    productRepository.addProduct(product, imageUri)
+                    productRepository.addProduct(saveProduct, imageUri)
                 } catch(e: Exception) {
                     Result.Error(Exception("Network request failed"))
                 }

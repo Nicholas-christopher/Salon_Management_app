@@ -24,6 +24,10 @@ class OwnerPaymentViewModel@Inject constructor(
 
     var amount by mutableStateOf("")
     var validateAmount by mutableStateOf(true)
+    var savePayment by mutableStateOf(Payment())
+        private set
+    var saveAppointment by mutableStateOf(Appointment())
+        private set
 
     var validated by mutableStateOf(false)
         private set
@@ -37,15 +41,21 @@ class OwnerPaymentViewModel@Inject constructor(
         validated = validateAmount
     }
 
+    fun mapToPayment(appointmentId: String, customerId: String) {
+        if (savePayment.customerId != customerId || savePayment.appointmentId != appointmentId || savePayment.amount != amount.toFloat()) {
+            savePayment = Payment("", customerId, appointmentId, amount.toFloat())
+        }
+    }
+
     fun makePayment(appointmentId: String, customerId: String, appointment: Appointment) {
         viewModelScope.launch {
             appointmentResult = "LOADING"
             paymentResult = "LOADING"
             validateData()
             if (validated) {
-                val payment = Payment(UUID.randomUUID().toString(), customerId, appointmentId, amount.toFloat())
+                mapToPayment(appointmentId, customerId)
                 val result = try {
-                    paymentRepository.makePayment(payment)
+                    paymentRepository.makePayment(savePayment)
                 } catch(e: Exception) {
                     Result.Error(Exception("Network request failed"))
                 }
@@ -67,10 +77,9 @@ class OwnerPaymentViewModel@Inject constructor(
         }
     }
 
-    fun completeAppointment(appointment: Appointment) {
-        viewModelScope.launch {
-            appointmentResult = "LOADING"
-            val updatedAppointment = Appointment(
+    fun mapToAppointment(appointment: Appointment) {
+        if (saveAppointment.status != "COMPLETED") {
+            saveAppointment = Appointment(
                 appointment.appointmentId,
                 appointment.customerId,
                 appointment.appointmentDate,
@@ -80,8 +89,15 @@ class OwnerPaymentViewModel@Inject constructor(
                 "COMPLETED",
                 amount.toFloat()
             )
+        }
+    }
+
+    fun completeAppointment(appointment: Appointment) {
+        viewModelScope.launch {
+            appointmentResult = "LOADING"
+            mapToAppointment(appointment)
             val result = try {
-                appointmentRepository.completeAppointment(updatedAppointment)
+                appointmentRepository.completeAppointment(saveAppointment)
             } catch(e: Exception) {
                 Result.Error(Exception("Network request failed"))
             }

@@ -5,6 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.github.bjoernq:unmockplugin:0.7.9'
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

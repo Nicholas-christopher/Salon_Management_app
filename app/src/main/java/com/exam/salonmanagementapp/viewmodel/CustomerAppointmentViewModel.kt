@@ -29,6 +29,8 @@ class CustomerAppointmentViewModel @Inject constructor(
     var time by mutableStateOf("")
     var service by mutableStateOf("")
     var description by mutableStateOf("")
+    var saveAppointment by mutableStateOf(Appointment())
+        private set
 
     var validateAppointmentDate by mutableStateOf(true)
     var validateTime by mutableStateOf(true)
@@ -47,14 +49,20 @@ class CustomerAppointmentViewModel @Inject constructor(
         validated = validateAppointmentDate && validateTime && validateService
     }
 
+    fun mapToAppointment(customerId: String) {
+        if (saveAppointment.customerId != customerId || saveAppointment.appointmentDate.compareTo(SimpleDateFormat("d/M/yyyy").parse(appointmentDate)) != 0 || saveAppointment.appointmentTime != time || saveAppointment.service != service || saveAppointment.description != description) {
+            saveAppointment = Appointment("", customerId, SimpleDateFormat("d/M/yyyy").parse(appointmentDate), time, service, description)
+        }
+    }
+
     fun saveAppointment(customerId: String) {
         viewModelScope.launch {
             saveResult = "LOADING"
             validateData()
             if (validated) {
-                val appointment = Appointment(UUID.randomUUID().toString(), customerId, SimpleDateFormat("d/M/yyyy").parse(appointmentDate), time, service, description)
+                mapToAppointment(customerId)
                 val result = try {
-                    appointmentRepository.makeAppointment(appointment)
+                    appointmentRepository.makeAppointment(saveAppointment)
                 } catch(e: Exception) {
                     Result.Error(Exception("Network request failed"))
                 }

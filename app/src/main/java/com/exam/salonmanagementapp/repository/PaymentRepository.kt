@@ -17,9 +17,10 @@ class PaymentRepository {
 
     suspend fun makePayment(payment: Payment): Result<Boolean> {
         lateinit var result:Result<Boolean>
+        val paymentWithId = Payment(UUID.randomUUID().toString(), payment.customerId, payment.appointmentId, payment.amount)
         db.collection(DataConstant.TABLE_PAYMENT)
-            .document(payment.id)
-            .set(payment)
+            .document(paymentWithId.id)
+            .set(paymentWithId)
             .addOnSuccessListener {
                 result = Result.Success(true)
             }.addOnFailureListener {

@@ -1,48 +1,45 @@
 package com.exam.salonmanagementapp.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.exam.salonmanagementapp.data.Customer
 import com.exam.salonmanagementapp.repository.CustomerRepository
-import com.exam.salonmanagementapp.viewmodel.RegistrationViewModel
-import com.google.firebase.FirebaseApp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import okhttp3.internal.wait
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 
+@ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class RegistrationUnitTest {
-
-    private val mainThreadSurrogate = newSingleThreadContext("RegistrationUnitTest thread")
 
     @Mock
     private lateinit var customerRepository: CustomerRepository
     private lateinit var registrationViewModel: RegistrationViewModel
 
+    val testDispatcher = UnconfinedTestDispatcher()
+
+    @get:Rule
+    val instantTaskExecutionRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
+
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(mainThreadSurrogate)
+        Dispatchers.setMain(testDispatcher)
+        customerRepository = Mockito.mock(CustomerRepository::class.java)
         registrationViewModel = RegistrationViewModel(customerRepository)
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.close()
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -267,5 +264,38 @@ class RegistrationUnitTest {
         assertEquals(true, registrationViewModel.validateConfirmPassword)
         assertEquals(false, registrationViewModel.validatePasswordEqual)
         assertEquals(false, registrationViewModel.validated)
+    }
+
+    @Test
+    fun `registration - mapToCustomer - positive`() {
+        registrationViewModel.name = "tester1"
+        registrationViewModel.email = "test@gmail.com"
+        registrationViewModel.phone = "0112223333"
+        registrationViewModel.password = "T3st#123"
+        registrationViewModel.confirmPassword = "T3st#123"
+        registrationViewModel.mapToCustomer()
+
+        assertEquals(registrationViewModel.name, registrationViewModel.saveCustomer.name)
+        assertEquals(registrationViewModel.email, registrationViewModel.saveCustomer.email)
+        assertEquals(registrationViewModel.phone, registrationViewModel.saveCustomer.phone)
+        assertEquals(registrationViewModel.password, registrationViewModel.saveCustomer.password)
+    }
+
+    @Test
+    fun `registration - flow - positive`() {
+        runTest {
+            registrationViewModel.name = "tester1"
+            registrationViewModel.email = "test@gmail.com"
+            registrationViewModel.phone = "0112223333"
+            registrationViewModel.password = "T3st#123"
+            registrationViewModel.confirmPassword = "T3st#123"
+            registrationViewModel.mapToCustomer()
+            val customer = Customer("tester1", "test@gmail.com", "0112223333", "T3st#1234")
+            Mockito.`when`(customerRepository.register(registrationViewModel.saveCustomer)).thenReturn(com.exam.salonmanagementapp.repository.Result.Success(true))
+
+            registrationViewModel.register()
+            assertEquals("SUCCESS", registrationViewModel.registrationResult)
+        }
+
     }
 }

@@ -23,6 +23,8 @@ class OwnerProductDetailViewModel @Inject constructor(
     var product by mutableStateOf(Product())
     var productResult by mutableStateOf("")
     var useImageUri by mutableStateOf(false)
+    var saveProduct by  mutableStateOf(Product())
+        private set
 
     var quantity by mutableStateOf("")
 
@@ -34,7 +36,9 @@ class OwnerProductDetailViewModel @Inject constructor(
     var saveProductResult by mutableStateOf("")
 
     fun validateData() {
-        validateQuantity = quantity.isNotBlank() && quantity.isDigitsOnly()
+        val quantityRegex = "^[\\d]+".toRegex()
+
+        validateQuantity = quantityRegex.matches(quantity)
 
         validated = validateQuantity
     }
@@ -60,14 +64,25 @@ class OwnerProductDetailViewModel @Inject constructor(
         }
     }
 
+    fun mapToProduct(addition: Boolean) {
+        if (saveProduct.id == "") {
+            if (addition) {
+                saveProduct = Product(product.id, product.productName, product.productImage, product.quantity + quantity.toInt())
+            }
+            else {
+                saveProduct = Product(product.id, product.productName, product.productImage, product.quantity - quantity.toInt())
+            }
+        }
+    }
+
     fun addProduct() {
         viewModelScope.launch {
             saveProductResult = "LOADING"
             validateData()
             if (validated) {
-                val product = Product(product.id, product.productName, product.productImage, product.quantity + quantity.toInt())
+                mapToProduct(true)
                 val result = try {
-                    productRepository.saveProduct(product)
+                    productRepository.saveProduct(saveProduct)
                 } catch(e: Exception) {
                     Result.Error(Exception("Network request failed"))
                 }
@@ -89,9 +104,9 @@ class OwnerProductDetailViewModel @Inject constructor(
             validateData()
             if (validated) {
                 if (product.quantity > quantity.toInt()) {
-                    val product = Product(product.id, product.productName, product.productImage, product.quantity - quantity.toInt())
+                    mapToProduct(false)
                     val result = try {
-                        productRepository.saveProduct(product)
+                        productRepository.saveProduct(saveProduct)
                     } catch(e: Exception) {
                         Result.Error(Exception("Network request failed"))
                     }
